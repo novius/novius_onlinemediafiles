@@ -1,6 +1,6 @@
 <?php
 return array(
-    'name'    => __('Online Meida Files'),
+    'name'    => __('Vidéos d\'Internet'),
     'version' => 'dev',
     'icons' => array(
         64 => 'static/apps/novius_onlinemediafiles/img/64-icon.png',
