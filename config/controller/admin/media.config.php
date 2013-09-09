@@ -7,8 +7,11 @@ return array(
     'layout' => array(
         'large' => true,
         'save' => 'save',
-        'title' => 'onme_title',
+        'title' => 'onme_url',
         'content' => array(
+            'params_js' => array(
+                'view' => 'novius_onlinemediafiles::admin/retrieve_video',
+            ),
             'properties' => array(
                 'view' => 'nos::form/expander',
                 'params' => array(
@@ -22,7 +25,22 @@ return array(
                         'view' => 'nos::form/fields',
                         'params' => array(
                             'fields' => array(
-                                'onme_folder_id',
+                                'onme_title',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        'menu' => array(
+            'accordion' => array(
+                'view' => 'nos::form/accordion',
+                'params' => array(
+                    'accordions' => array(
+                        'folder' => array(
+                            'title' => __('Folder'),
+                            'fields' => array(
+                                'onme_folder_id'
                             ),
                         ),
                     ),
@@ -40,6 +58,7 @@ return array(
         ),
         'onme_folder_id' => array(
             'label' => __('Folder'),
+            'validation' => array('required'),
             'renderer' => '\Lib\Renderers\Renderer_Categories',
             'renderer_options' => array(
                 'width' => '250px',
@@ -111,7 +130,21 @@ return array(
             'form' => array(
                 'type' => 'text',
             ),
-            'label' => __('Title:'),
+            'label' => __('Title'),
+        ),
+        'onme_url' => array(
+            'form' => array(
+                'type' => 'text',
+            ),
+            'label' => __('URL'),
+            'before_save' => function($item, $datas) {
+                //on vérifie que l'url saisie soit prise en charge
+                if (!\Novius\OnlineMediaFiles\Model_Media::accept_service($datas['onme_url'])) {
+                    throw new \Exception(__('Le service n\'a pas été recconnu ou n\'est pas pris en charge'));
+                } else {
+                    dd($datas);
+                }
+            },
         ),
 //        'media_file' => array(
 //            'form' => array(

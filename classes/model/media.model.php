@@ -4,6 +4,15 @@ namespace Novius\OnlineMediaFiles;
 
 class Model_Media extends \Nos\Orm\Model
 {
+    public static $services_url = array(
+        'youtube.com',
+        'www.youtube.com',
+        'vimeo.com',
+        'www.vimeo.com',
+        'dailymotion.com',
+        'www.dailymotion.com',
+    );
+
     protected static $_table_name = 'onlinemediafiles';
     protected static $_primary_key = array('onme_id');
 
@@ -20,6 +29,11 @@ class Model_Media extends \Nos\Orm\Model
             'null' => false,
         ),
         'onme_title' => array(
+            'default' => null,
+            'data_type' => 'varchar',
+            'null' => false,
+        ),
+        'onme_url' => array(
             'default' => null,
             'data_type' => 'varchar',
             'null' => false,
@@ -69,4 +83,14 @@ class Model_Media extends \Nos\Orm\Model
             'property'=>'onme_updated_at'
         )
     );
+
+    public static function accept_service ($url)
+    {
+        $url = parse_url($url);
+        if (!in_array($url['path'], self::$services_url)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
