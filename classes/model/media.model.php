@@ -33,6 +33,26 @@ class Model_Media extends \Nos\Orm\Model
             'data_type' => 'varchar',
             'null' => false,
         ),
+        'onme_description' => array(
+            'default' => null,
+            'data_type' => 'text',
+            'null' => true,
+        ),
+        'onme_thumbnail' => array(
+            'default' => null,
+            'data_type' => 'varchar',
+            'null' => true,
+        ),
+        'onme_metadatas' => array(
+            'default' => null,
+            'data_type' => 'text',
+            'null' => true,
+        ),
+        'onme_driver_name' => array(
+            'default' => null,
+            'data_type' => 'varchar',
+            'null' => false,
+        ),
         'onme_url' => array(
             'default' => null,
             'data_type' => 'varchar',

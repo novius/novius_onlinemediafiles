@@ -1,18 +1,8 @@
 <?php
 
-//$icons = \Config::load('noviusos_media::icons', true);
-$extensions = array();
-//foreach ($icons['icons'] as $size => $images) {
-//    foreach ($images as $image => $ext_list) {
-//        foreach (explode(',', $ext_list) as $ext) {
-//            $extensions[$size][$ext] = $image;
-//        }
-//    }
-//}
-$media_icon = function ($size) use ($extensions) {
-    return function ($item) use($size, $extensions) {
-        return '';
-//        return isset($extensions[$size][$item->media_ext]) ? 'static/apps/noviusos_media/icons/'.$size.'/'.$extensions[$size][$item->media_ext] : '';
+$media_icon = function () {
+    return function ($item) {
+        return $item->onme_thumbnail ? $item->onme_thumbnail : '';
     };
 };
 

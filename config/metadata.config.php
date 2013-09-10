@@ -24,6 +24,12 @@ return array(
             ),
         ),
     ),
-//    'enhancers' => array(
-//    ),
+    'enhancers' => array(
+        'novius_onlinemediafiles_player' => array(
+            'title'     => 'Média distant',
+            'desc'      => '',
+            'enhancer'  => 'novius_onlinemediafiles/front/player',
+            'iconUrl'   => 'static/apps/noviusos_news/img/news-16.png',
+        ),
+    ),
 );

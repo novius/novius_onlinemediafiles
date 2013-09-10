@@ -26,6 +26,10 @@ return array(
                         'params' => array(
                             'fields' => array(
                                 'onme_title',
+                                'onme_description',
+                                'onme_metadatas',
+                                'onme_thumbnail',
+                                'onme_driver_name',
                             ),
                         ),
                     ),
@@ -112,13 +116,6 @@ return array(
 //                }
 //            },
         ),
-//        'media_folder_id' => array(
-//            'renderer' =>  'Nos\Media\Renderer_Folder',
-//            'form' => array(
-//                'type'  => 'hidden',
-//            ),
-//            'label' => __('Select a folder where to put your media file:'),
-//        ),
 //        'media' => array(
 //            'dont_save' => true,
 //            'form' => array(
@@ -137,14 +134,31 @@ return array(
                 'type' => 'text',
             ),
             'label' => __('URL'),
-            'before_save' => function($item, $datas) {
-                //on vérifie que l'url saisie soit prise en charge
-                if (!\Novius\OnlineMediaFiles\Model_Media::accept_service($datas['onme_url'])) {
-                    throw new \Exception(__('Le service n\'a pas été recconnu ou n\'est pas pris en charge'));
-                } else {
-                    dd($datas);
-                }
-            },
+        ),
+        'onme_description' => array(
+            'form' => array(
+                'type' => 'textarea',
+                'rows' => '15',
+            ),
+            'label' => 'Description',
+        ),
+        'onme_metadatas' => array (
+            'label' => 'metadata',
+            'form' => array(
+                'type' => 'hidden',
+            ),
+        ),
+        'onme_driver_name' => array (
+            'label' => 'driver_name',
+            'form' => array(
+                'type' => 'hidden',
+            ),
+        ),
+        'onme_thumbnail' => array (
+            'label' => 'ID: ',
+            'form' => array(
+                'type' => 'hidden',
+            ),
         ),
 //        'media_file' => array(
 //            'form' => array(

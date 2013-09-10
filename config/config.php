@@ -5,7 +5,7 @@ return array(
      */
     'drivers' => array(
         'Youtube',
-        'Vimeo',
         'Dailymotion',
+        'Vimeo',
     ),
 );

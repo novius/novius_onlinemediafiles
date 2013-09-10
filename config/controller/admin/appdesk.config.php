@@ -8,7 +8,7 @@ return array(
     'search_text' => 'onme_title',
     'inspectors' => array(
         'folder',
-//        'extension',
+        'driver',
     ),
 //    'views' => array(
 //        'default' => array(
