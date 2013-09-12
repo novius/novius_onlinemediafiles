@@ -25,11 +25,19 @@ return array(
         ),
     ),
     'enhancers' => array(
-        'novius_onlinemediafiles_player' => array(
+        'novius_onlinemediafiles_display' => array(
             'title'     => 'Média distant',
             'desc'      => '',
-            'enhancer'  => 'novius_onlinemediafiles/front/player',
-            'iconUrl'   => 'static/apps/noviusos_news/img/news-16.png',
+            'id'        => 'onlinemediafiles',
+            'previewUrl' => 'admin/novius_onlinemediafiles/enhancer/preview',
+            'enhancer'  => 'novius_onlinemediafiles/front/show',
+            'dialog' => array(
+                'contentUrl' => 'admin/novius_onlinemediafiles/enhancer/popup',
+                'ajax' => true,
+//                'width' => 500,
+//                'height' => 300,
+            ),
+//            'iconUrl'   => 'static/apps/noviusos_news/img/news-16.png',
         ),
     ),
 );

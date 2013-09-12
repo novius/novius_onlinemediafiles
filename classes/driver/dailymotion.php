@@ -17,8 +17,6 @@ class Driver_Dailymotion extends Driver {
             return false;
         }
 
-        //$this->url = 'http://youtu.be/H5QdtDPEhhk';
-
         // Check if the host match by extracting the identifier
         if (($identifier = $this->extractIdentifier())) {
             $this->identifier = $identifier;
@@ -26,6 +24,29 @@ class Driver_Dailymotion extends Driver {
         }
 
         return false;
+    }
+
+    public function preview($metadatas = false) {
+        // Charge les attributs du média distant
+        $attributes = $this->getAttributes();
+        if (!empty($attributes)) {
+            ?>
+            <img src="<?= $this->attributes['thumbnail'] ?>" alt="<?= $this->attributes['title'] ?>" />
+        <?
+        }
+    }
+
+    public function display() {
+        // Charge les attributs du média distant
+        $attributes = $this->getAttributes();
+        if (!empty($attributes)) {
+            if (($identifier = $this->extractIdentifier())) {
+                // Build embed url
+                ?>
+                <iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/<?= $identifier ?>"></iframe>
+                <?
+            }
+        }
     }
 
     /**
@@ -73,6 +94,8 @@ class Driver_Dailymotion extends Driver {
         // Save other attributes as metadatas
         $attributes['metadatas'] = (array) $json;
 
+        $this->attributes = $attributes;
+
         return $attributes;
     }
 
@@ -95,7 +118,7 @@ class Driver_Dailymotion extends Driver {
         }
 
         // Extract by host
-        $parts = parse_url($this->getUrl());
+        $parts = self::parseUrl($this->getUrl());
         switch ($parts['host']) {
 
             // Standard url
@@ -127,10 +150,4 @@ class Driver_Dailymotion extends Driver {
 
         return false;
     }
-
-    public function extractMetadatas() {
-
-    }
 }
-
-//view-source:http://www.dailymotion.com/services/oembed?format=json&url=http://www.dailymotion.com/video/x14f6vz_shower-elevator-remi-gaillard-censuree-sur-youtube_fun

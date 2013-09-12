@@ -19,7 +19,8 @@ abstract class Driver {
     protected $url            = false;
 
     // Unique identifier of the online media (id, clean url...)
-    protected $identifier     = false;
+    protected $identifier       = false;
+    protected $attributes       = array();
 
     protected $config           = array();
     protected $driver_name      = false;
@@ -51,6 +52,66 @@ abstract class Driver {
                 }
             }
         }
+    }
+
+    /**
+     * Forge a new instance of the driver
+     *
+     * @param $url
+     * @param bool $force
+     * @return mixed
+     */
+    public static function forge($url, $force = false) {
+        $token = get_called_class() .'_'. $url;
+        // Not forget yet ?
+        if (!isset(self::$forged[$token]) || $force) {
+            self::$forged[$token] = new static($url);
+        }
+        return self::$forged[$token];
+    }
+
+    /**
+     * Build a new driver
+     *
+     * @param $driver_name
+     * @param $url
+     * @return bool
+     */
+    public static function build($driver_name, $url) {
+        // Build driver class
+        $driver_class = Driver::buildDriverClass($driver_name);
+        if (empty($driver_class)) {
+            return false;
+        }
+        return $driver_class::forge($url);
+    }
+
+    /**
+     * Build a new driver from a media object
+     *
+     * @param $media
+     * @return bool
+     */
+    public static function buildFromMedia($media) {
+
+        // Get the driver class name
+        $driver_class = self::buildDriverClass($media->onme_driver_name);
+        if (empty($driver_class)) {
+            return false;
+        }
+
+        // Forge the driver
+        $driver = $driver_class::forge($media->onme_url);
+
+        // Set the attributes from the media object
+        $driver->setAttributes(array(
+            'title'         => $media->onme_title,
+            'description'   => $media->onme_description,
+            'thumbnail'     => $media->onme_thumbnail,
+            'metadatas'     => $media->onme_metadatas,
+        ));
+
+        return $driver;
     }
 
     /**
@@ -98,6 +159,27 @@ abstract class Driver {
     }
 
     /**
+     * Build the driver class from the driver name
+     *
+     * @param $driver_name
+     * @return bool|string
+     */
+    public static function buildDriverClass($driver_name) {
+        if (empty($driver_name)) {
+            return false;
+        }
+        // Check if no namespace
+        if (\Str::sub($driver_name, 0, 1) != '\\') {
+            // Build namespace for native driver
+            if (\Str::sub($driver_name, 0, 7) != 'Driver_') {
+                $driver_name = 'Driver_'.$driver_name;
+            }
+            $driver_name = '\Novius\OnlineMediaFiles\\'. $driver_name;
+        }
+        return class_exists($driver_name) ? $driver_name : false;
+    }
+
+    /**
      * @return bool|string
      */
     public function getDriverName() {
@@ -136,6 +218,18 @@ abstract class Driver {
      */
     public function getIdentifier() {
         return $this->identifier;
+    }
+
+    public function getAttributes($auto_fetch = true) {
+        if ($auto_fetch && empty($this->attributes)) {
+            // Fetch attributes if not set
+            $this->fetch();
+        }
+        return $this->attributes;
+    }
+
+    public function setAttributes($attributes) {
+        $this->attributes = $attributes;
     }
 
     /**
@@ -205,35 +299,14 @@ abstract class Driver {
         return false;
     }
 
-    /**
-     * Forge a new instance
-     *
-     * @param $url
-     * @param bool $force
-     * @return mixed
-     */
-    public static function forge($url, $force = false) {
-        $token = get_called_class() .'_'. $url;
-        // Not forget yet ?
-        if (!isset(self::$forged[$token]) || $force) {
-            self::$forged[$token] = new static($url);
+    public static function parseUrl($url) {
+        // Add http if necessary
+        if (substr($url, 0, 2) == '//') {
+            $url = 'http:'.$url;
+        } elseif (!preg_match('`^https?://`', $url)) {
+            $url = 'http://'.$url;
         }
-        return self::$forged[$token];
-    }
-
-    public static function buildDriver($driver_name, $url) {
-        // Build namespace for native driver
-        if (\Str::sub($driver_name, 0, 1) != '\\') {
-            if (\Str::sub($driver_name, 0, 7) != 'Driver_') {
-                $driver_name = 'Driver_'.$driver_name;
-            }
-            $driver_name = '\Novius\OnlineMediaFiles\\'. $driver_name;
-        }
-        // Forge the driver
-        if (class_exists($driver_name)) {
-            return $driver_name::forge($url);
-        }
-        return false;
+        return parse_url($url);
     }
 
     /**
@@ -249,5 +322,19 @@ abstract class Driver {
      * @return mixed
      */
     abstract public function check();
+
+    /**
+     * Show the online media
+     *
+     * @return mixed
+     */
+    abstract public function display();
+
+    /**
+     * Show a preview of the online media
+     *
+     * @return mixed
+     */
+    abstract public function preview();
 
 }

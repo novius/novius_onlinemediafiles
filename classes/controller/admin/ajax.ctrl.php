@@ -16,8 +16,6 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
 {
     public function action_fetch() {
 
-        $debug = \Input::get('debug', false);
-
         try {
             $url = \Input::post('url', false);
 
@@ -30,7 +28,7 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
             foreach ($this->app_config['drivers'] as $driver_name) {
 
                 // Build le driver avec l'url fournie
-                if (($driver = Driver::buildDriver($driver_name, $url))) {
+                if (($driver = Driver::build($driver_name, $url))) {
 
                     // Check si le driver est compatible avec l'url du média distant
                     if ($driver->check()) {

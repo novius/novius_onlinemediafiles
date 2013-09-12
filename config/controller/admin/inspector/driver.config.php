@@ -5,17 +5,17 @@ return array(
         array(
             'id' => 'Youtube',
             'title' => __('vidéo Youtube'),
-            'icon' => 'archive.png',
+            'icon' => 'youtube.jpg',
         ),
         array(
             'id' => 'Dailymotion',
             'title' => __('vidéo Dailymotion'),
-            'icon' => 'archive.png',
+            'icon' => 'dailymotion.png',
         ),
         array(
             'id' => 'Vimeo',
             'title' => __('vidéos Vimeo'),
-            'icon' => 'archive.png',
+            'icon' => 'vimeo.png',
         ),
     ),
     'input' => array(

@@ -12,3 +12,8 @@ $btn_synchro_id = uniqid('btn_synchro_');
 <div id="<?= $wrapper_button_id ?>">
     <button id="<?= $btn_synchro_id ?>" class="ui-icon-refresh primary">Synchroniser le média</button>
 </div>
+<style type="text/css">
+.wrap_thumbnail img {
+    max-width: 100%;
+}
+</style>

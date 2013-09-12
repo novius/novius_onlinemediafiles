@@ -50,6 +50,21 @@ return array(
 
         'Pick' => __('Pick'),
     ),
+    'views' => array(
+        'default' => array(
+            'name' => __('Default view'),
+            'json' => array(
+                'static/apps/novius_onlinemediafiles/config/common.js',
+            ),
+        ),
+        'media_pick' => array(
+            'virtual' => true,
+            'json' => array(
+                'static/apps/novius_onlinemediafiles/config/common.js',
+                'static/apps/novius_onlinemediafiles/config/media_pick.js'
+            ),
+        ),
+    ),
     'thumbnails' => true,
     'appdesk' => array(
 //        'reloadEvent' => array(

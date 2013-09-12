@@ -12,6 +12,26 @@ namespace Novius\OnlineMediaFiles;
 
 class Driver_Vimeo extends Driver {
 
+    public function preview() {
+        // Charge les attributs du média distant
+        $attributes = $this->getAttributes();
+        if (!empty($attributes)) {
+            ?>
+            <img src="<?= $this->attributes['thumbnail'] ?>" alt="<?= $this->attributes['title'] ?>" />
+            <?
+        }
+    }
+
+    public function display() {
+        $attributes = $this->getAttributes();
+        $identifier = $this->extractIdentifier();
+        if (!empty($attributes) && !empty($identifier)) {
+            ?>
+            <iframe src="//player.vimeo.com/video/<?= $identifier ?>" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+            <?
+        }
+    }
+
     public function check() {
         if (!$this->getUrl()) {
             return false;
@@ -64,7 +84,15 @@ class Driver_Vimeo extends Driver {
         $attributes['description'] = (!empty($response->description) ? $response->description : '');
 
         // Extract thumbnail
-        $attributes['thumbnail'] = (!empty($response->thumbnail_url) ? $response->thumbnail_url : '');
+        if (!empty($response->thumbnail_large)) {
+            $attributes['thumbnail'] = $response->thumbnail_large;
+        } elseif (!empty($response->thumbnail_medium)) {
+            $attributes['thumbnail'] = $response->thumbnail_medium;
+        } elseif (!empty($response->thumbnail_small)) {
+            $attributes['thumbnail'] = $response->thumbnail_small;
+        } else {
+            $attributes['thumbnail'] = '';
+        }
 
         // Save other attributes as metadatas
         $attributes['metadatas'] = (array) $response;
@@ -91,7 +119,7 @@ class Driver_Vimeo extends Driver {
         }
 
         // Extract by host
-        $parts = parse_url($this->getUrl());
+        $parts = self::parseUrl($this->getUrl());
         switch ($parts['host']) {
 
             // Standard url

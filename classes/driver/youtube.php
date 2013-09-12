@@ -26,6 +26,28 @@ class Driver_Youtube extends Driver {
         return false;
     }
 
+    public function preview($metadatas = false) {
+        // Charge les attributs du média distant
+        $attributes = $this->getAttributes();
+        if (!empty($attributes)) {
+            ?>
+            <img src="<?= $this->attributes['thumbnail'] ?>" alt="<?= $this->attributes['title'] ?>" />
+            <?
+        }
+    }
+
+    public function display() {
+        // Charge les attributs du média distant
+        $attributes = $this->getAttributes();
+        $identifier = $this->extractIdentifier();
+        if (!empty($attributes) && !empty($identifier)) {
+            // Build embed url
+            ?>
+            <iframe width="560" height="315" src="//www.youtube.com/embed/<?= $identifier ?>" frameborder="0" allowfullscreen></iframe>
+            <?
+        }
+    }
+
     /**
      * Fetch the attributes of the online media (title, description...)
      *
@@ -92,7 +114,7 @@ class Driver_Youtube extends Driver {
         }
 
         // Extract by host
-        $parts = parse_url($this->getUrl());
+        $parts = self::parseUrl($this->getUrl());
         switch ($parts['host']) {
 
             // Standard url
