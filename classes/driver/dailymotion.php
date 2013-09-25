@@ -13,40 +13,32 @@ namespace Novius\OnlineMediaFiles;
 class Driver_Dailymotion extends Driver {
 
     public function check() {
-        if (!$this->getUrl()) {
-            return false;
-        }
-
-        // Check if the host match by extracting the identifier
-        if (($identifier = $this->extractIdentifier())) {
-            $this->identifier = $identifier;
-            return true;
-        }
-
-        return false;
+        // Check if the driver is compatible by extracting the identifier from the url
+        return ($this->url() && $this->identifier(false));
     }
 
-    public function preview($metadatas = false) {
+    public function preview($echo = true) {
         // Charge les attributs du média distant
-        $attributes = $this->getAttributes();
-        if (!empty($attributes)) {
-            ?>
-            <img src="<?= $this->attributes['thumbnail'] ?>" alt="<?= $this->attributes['title'] ?>" />
+        $attributes = $this->attributes();
+        if (empty($attributes) || empty($attributes['thumbnail'])) {
+            return '';
+        }
+        if (!$echo) ob_start();
+        ?>
+        <img src="<?= $attributes['thumbnail'] ?>" alt="<?= $attributes['title'] ?>" />
         <?
-        }
+        return (!$echo ? ob_get_clean() : '');
     }
 
-    public function display() {
-        // Charge les attributs du média distant
-        $attributes = $this->getAttributes();
-        if (!empty($attributes)) {
-            if (($identifier = $this->extractIdentifier())) {
-                // Build embed url
-                ?>
-                <iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/<?= $identifier ?>"></iframe>
-                <?
-            }
+    public function display($echo = true) {
+        if (!$this->identifier()) {
+            return '';
         }
+        if (!$echo) ob_start();
+        ?>
+        <iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/<?= $this->identifier() ?>"></iframe>
+        <?
+        return (!$echo ? ob_get_clean() : '');
     }
 
     /**
@@ -55,99 +47,86 @@ class Driver_Dailymotion extends Driver {
      * @return bool|mixed
      */
     public function fetch() {
-        $identifier = $this->extractIdentifier();
-        if (empty($identifier)) {
+        if (!$this->identifier()) {
             return false;
         }
 
-        $attributes = array();
-
-        // Extract attributes using the API
+        // Build the dailymotion API url
         $fields = (!empty($this->config['api_fields']) ? '?fields='.implode(',', $this->config['api_fields']) : '');
-
-        // Check if video exists
-        $api_url = 'https://api.dailymotion.com/video/'.$identifier.$fields;
+        $api_url = 'https://api.dailymotion.com/video/'.$this->identifier().$fields;
+        // Check if the video exists by checking the HTTP status code of the API url
         $headers = get_headers($api_url, 1);
         if (strpos($headers[0], '200 OK') === false) {
             return false;
         }
-
-        // Get video datas
+        // Get the API response
         $json = file_get_contents($api_url);
         if (empty($json)) {
             return false;
         }
-        $json = json_decode($json);
-
-        // Extract title
-        $attributes['title'] = (!empty($json->title) ? $json->title : '');
-        if (empty($attributes['title'])) {
+        $response = json_decode($json);
+        if (empty($response)) {
             return false;
         }
 
-        // Extract description
-        $attributes['description'] = (!empty($json->description) ? $json->description : '');
+        // Title is required
+        if (empty($response->title)) {
+            return false;
+        }
 
-        // Extract thumbnail
-        $attributes['thumbnail'] = (!empty($json->thumbnail_url) ? $json->thumbnail_url : '');
+        // Build attributes
+        $attributes = array(
+            'title'         => (string) $response->title,
+            'description'   => (string) (!empty($response->description) ? $response->description : ''),
+            'thumbnail'     => (string) (!empty($response->thumbnail_url) ? $response->thumbnail_url : ''),
+            'metadatas'     => (array) $response,
+        );
 
-        // Save other attributes as metadatas
-        $attributes['metadatas'] = (array) $json;
-
-        $this->attributes = $attributes;
-
-        return $attributes;
+        return $this->attributes($attributes);
     }
 
-    public function getCleanUrl() {
-        if (($identifier = $this->extractIdentifier())) {
-            return 'http://www.dailymotion.com/video/'.$identifier;
+    public function cleanUrl() {
+        if ($this->identifier()) {
+            return 'http://www.dailymotion.com/video/'.$this->identifier();
         }
-        return false;
-}
+        return $this->url();
+    }
 
     /**
      * Extract the unique identifier of the online media
      *
+     * @param bool $from_cache
      * @return bool|mixed
      */
-    public function extractIdentifier() {
-        // Already extracted
-        if (!empty($this->identifier)) {
-            return $this->identifier;
-        }
-
-        // Extract by host
-        $parts = self::parseUrl($this->getUrl());
-        switch ($parts['host']) {
-
-            // Standard url
-            case 'www.dailymotion.com':
-            case 'dailymotion.com':
-                // Extract ID from path
-                $args = array_filter(explode('/', $parts['path']));
-
-                // Ignore the "embed" part
-                if (reset($args) == 'embed') {
-                    array_shift($args);
-                }
-
-                // Check the "video" part
-                if (reset($args) == 'video') {
-                    array_shift($args);
-
-                    // Extract the full identifier
-                    $identifier = reset($args);
-                    if (!empty($identifier)) {
-
-                        // Extract only the ID
-                        $identifier = explode('_', $identifier);
-                        return reset($identifier);
+    public function identifier($from_cache = true) {
+        if (!$from_cache || empty($this->identifier)) {
+            $this->identifier = false;
+            // Extract the identifier by host
+            $parts = self::parseUrl($this->url());
+            switch ($parts['host']) {
+                // Standard pattern
+                case 'www.dailymotion.com':
+                case 'dailymotion.com':
+                    // Extract ID from path
+                    $args = array_filter(explode('/', $parts['path']));
+                    // Ignore the "embed" part
+                    if (reset($args) == 'embed') {
+                        array_shift($args);
                     }
-                }
-                break;
+                    // Check the "video" part
+                    if (reset($args) == 'video') {
+                        array_shift($args);
+                        // Extract the full identifier
+                        $identifier = reset($args);
+                        if (!empty($identifier)) {
+                            // Extract only the ID
+                            $identifier = explode('_', $identifier);
+                            $this->identifier = reset($identifier);
+                        }
+                    }
+                    break;
+            }
         }
-
-        return false;
+        return $this->identifier;
     }
 }

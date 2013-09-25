@@ -13,145 +13,117 @@ namespace Novius\OnlineMediaFiles;
 class Driver_Youtube extends Driver {
 
     public function check() {
-        if (!$this->getUrl()) {
-            return false;
-        }
-
-        // Check if the host match by extracting the identifier
-        if (($identifier = $this->extractIdentifier())) {
-            $this->identifier = $identifier;
-            return true;
-        }
-
-        return false;
+        // Check if the driver is compatible by extracting the identifier from the url
+        return ($this->url() && $this->identifier(false));
     }
 
-    public function preview($metadatas = false) {
+    public function preview($echo = true) {
         // Charge les attributs du média distant
-        $attributes = $this->getAttributes();
-        if (!empty($attributes)) {
-            ?>
-            <img src="<?= $this->attributes['thumbnail'] ?>" alt="<?= $this->attributes['title'] ?>" />
-            <?
+        $attributes = $this->attributes();
+        if (empty($attributes) || empty($attributes['thumbnail'])) {
+            return '';
         }
+        if (!$echo) ob_start();
+        ?>
+        <img src="<?= $attributes['thumbnail'] ?>" alt="<?= $attributes['title'] ?>" />
+        <?
+        return (!$echo ? ob_get_clean() : '');
     }
 
-    public function display() {
-        // Charge les attributs du média distant
-        $attributes = $this->getAttributes();
-        $identifier = $this->extractIdentifier();
-        if (!empty($attributes) && !empty($identifier)) {
-            // Build embed url
-            ?>
-            <iframe width="560" height="315" src="//www.youtube.com/embed/<?= $identifier ?>" frameborder="0" allowfullscreen></iframe>
-            <?
+    public function display($echo = true) {
+        if (!$this->identifier()) {
+            return '';
         }
+        if (!$echo) ob_start();
+        ?>
+        <iframe width="560" height="315" src="//www.youtube.com/embed/<?= $this->identifier() ?>?&wmode=opaque" frameborder="0" allowfullscreen></iframe>
+        <?
+        return (!$echo ? ob_get_clean() : '');
     }
 
     /**
-     * Fetch the attributes of the online media (title, description...)
+     * Fetch the online media attributes (title, description, metadatas...)
      *
      * @return bool|mixed
      */
     public function fetch() {
-        $identifier = $this->extractIdentifier();
-        if (empty($identifier)) {
+        if (!$this->identifier()) {
             return false;
         }
 
-        $attributes = array();
-
-        $api_url = 'http://gdata.youtube.com/feeds/api/videos/'.$this->identifier.'?v=2&alt=jsonc';
-
-        // Load response (atom)
+        // Call the youtube API
+        $api_url = 'http://gdata.youtube.com/feeds/api/videos/'.$this->identifier().'?v=2&alt=jsonc';
         $json = file_get_contents($api_url);
         if (empty($json)) {
             return false;
         }
         $response = json_decode($json);
-
-        // Extract title (required)
-        $attributes['title'] = (!empty($response->data->title) ? $response->data->title : '');
-        if (empty($attributes['title'])) {
+        if (empty($response) || empty($response->data)) {
             return false;
         }
 
-        // Extract description
-        $attributes['description'] = (!empty($response->data->description) ? $response->data->description : '');
-
-        // Extract thumbnail
-        if (!empty($response->data->thumbnail->hqDefault)) {
-            $attributes['thumbnail'] = $response->data->thumbnail->hqDefault;
-        } elseif (!empty($response->data->thumbnail->sqDefault)) {
-            $attributes['thumbnail'] = $response->data->thumbnail->sqDefault;
-        } else {
-            $attributes['thumbnail'] = false;
+        // Title is required
+        if (empty($response->data->title)) {
+            return false;
         }
 
-        // Save other attributes as metadatas
-        $attributes['metadatas'] = (array) $response->data;
+        // Build attributes
+        $attributes = array(
+            'title'         => (string) $response->data->title,
+            'description'   => (string) (!empty($response->data->description) ? $response->data->description : ''),
+            'thumbnail'     => false,
+            'metadatas'     => (array) $response->data,
+        );
 
-        return $attributes;
+        // Get the biggest thumbnail
+        if (!empty($response->data->thumbnail->hqDefault)) {
+            $attributes['thumbnail'] = (string) $response->data->thumbnail->hqDefault;
+        } elseif (!empty($response->data->thumbnail->sqDefault)) {
+            $attributes['thumbnail'] = (string) $response->data->thumbnail->sqDefault;
+        }
+
+        return $this->attributes($attributes);
     }
 
-    public function getCleanUrl() {
-        $identifier = $this->extractIdentifier();
-        if (!empty($identifier)) {
-            return false;
+    public function cleanUrl() {
+        if ($this->identifier()) {
+            return 'http://www.youtube.com/watch?v='.$this->identifier();
         }
-        return 'http://www.youtube.com/watch?v='.$identifier;
+        return $this->url();
     }
 
     /**
      * Extract the unique identifier of the online media
      *
+     * @param bool $from_cache
      * @return bool|mixed
      */
-    public function extractIdentifier() {
-        // Already extracted
-        if (!empty($this->identifier)) {
-            return $this->identifier;
-        }
-
-        // Extract by host
-        $parts = self::parseUrl($this->getUrl());
-        switch ($parts['host']) {
-
-            // Standard url
-            case 'www.youtube.com':
-            case 'youtube.com':
-            case 'm.youtube.com':
-                // Extract ID from query args
-                parse_str($parts['query'], $args);
-                if ($args['v']) {
-                    return $args['v'];
-                }
-                break;
-
-            // Minified url
-            case 'youtu.be':
-                // Extract ID from path
-                $args = array_filter(explode('/', $parts['path']));
-                if (count($args) > 0) {
-                    return reset($args);
-                }
-                break;
-        }
-
-        return false;
-    }
-
-    public function extractMetadatas() {
-
-    }
-
-    public static function SimpleXMLToArray(\SimpleXMLElement $xml) {
-        $array = (array) $xml;
-        foreach (array_slice($array, 0) as $key => $value) {
-            if ($value instanceof SimpleXMLElement) {
-                $array[$key] = empty($value) ? null : self::SimpleXMLToArray($value);
+    public function identifier($from_cache = true) {
+        if (!$from_cache || empty($this->identifier)) {
+            $this->identifier = false;
+            // Extract the identifier by host
+            $parts = self::parseUrl($this->url());
+            switch ($parts['host']) {
+                // Standard pattern
+                case 'www.youtube.com':
+                case 'youtube.com':
+                case 'm.youtube.com':
+                    // Extract ID from query args
+                    parse_str($parts['query'], $args);
+                    if ($args['v']) {
+                        $this->identifier = $args['v'];
+                    }
+                    break;
+                // Minified pattern
+                case 'youtu.be':
+                    // Extract ID from path
+                    $args = array_filter(explode('/', $parts['path']));
+                    if (count($args) > 0) {
+                        $this->identifier = reset($args);
+                    }
+                    break;
             }
         }
-        return $array;
+        return $this->identifier;
     }
 }

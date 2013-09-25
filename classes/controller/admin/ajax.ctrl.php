@@ -42,7 +42,9 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
                         }
 
                         $attributes['driver_name'] = $driver_name;
-                        $attributes['metadatas'] = serialize($attributes['metadatas']);
+                        $attributes['display'] = $driver->display(false);
+                        $attributes['preview'] = $driver->preview(false);
+                        $attributes['metadatas'] = Driver::objectToArray($attributes['metadatas']);
 
                         // Retourne les attributs au format json
                         \Response::json($attributes);

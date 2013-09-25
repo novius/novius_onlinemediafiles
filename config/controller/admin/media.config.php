@@ -27,8 +27,6 @@ return array(
                             'fields' => array(
                                 'onme_title',
                                 'onme_description',
-                                'onme_metadatas',
-                                'onme_thumbnail',
                                 'onme_driver_name',
                             ),
                         ),
@@ -37,6 +35,25 @@ return array(
             ),
         ),
         'menu' => array(
+            'thumbnail' => array(
+                'view' => 'nos::form/expander',
+                'params' => array(
+                    'title'   => __('Prévisualisation'),
+                    'nomargin' => true,
+                    'options' => array(
+                        'allowExpand' => true,
+                        'fieldset' => 'properties',
+                    ),
+                    'content' => array(
+                        'view' => 'nos::form/fields',
+                        'params' => array(
+                            'fields' => array(
+                                'thumbnail',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
             'accordion' => array(
                 'view' => 'nos::form/accordion',
                 'params' => array(
@@ -138,7 +155,7 @@ return array(
         'onme_description' => array(
             'form' => array(
                 'type' => 'textarea',
-                'rows' => '15',
+                'rows' => '20',
             ),
             'label' => 'Description',
         ),
@@ -147,6 +164,12 @@ return array(
             'form' => array(
                 'type' => 'hidden',
             ),
+            'populate' => function($item) {
+                return json_encode($item->onme_metadatas);
+            },
+            'before_save'   => function($item, $data) {
+                $item->onme_metadatas = json_decode($data['onme_metadatas']);
+            }
         ),
         'onme_driver_name' => array (
             'label' => 'driver_name',
@@ -159,6 +182,17 @@ return array(
             'form' => array(
                 'type' => 'hidden',
             ),
+        ),
+        'thumbnail' => array(
+            'template' => '<div class="wrap_preview">{field}</div>',
+            'renderer' => 'Novius\OnlineMediaFiles\Renderer_HTML',
+            'dont_save' => true,
+            'populate' => function($item) {
+                if ($item->onme_id) {
+                    return $item->display();
+                }
+                return '';
+            },
         ),
 //        'media_file' => array(
 //            'form' => array(

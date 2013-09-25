@@ -4,15 +4,6 @@ namespace Novius\OnlineMediaFiles;
 
 class Model_Media extends \Nos\Orm\Model
 {
-    public static $services_url = array(
-        'youtube.com',
-        'www.youtube.com',
-        'vimeo.com',
-        'www.vimeo.com',
-        'dailymotion.com',
-        'www.dailymotion.com',
-    );
-
     protected static $_table_name = 'onlinemediafiles';
     protected static $_primary_key = array('onme_id');
 
@@ -45,7 +36,7 @@ class Model_Media extends \Nos\Orm\Model
         ),
         'onme_metadatas' => array(
             'default' => null,
-            'data_type' => 'text',
+            'data_type' => 'serialize',
             'null' => true,
         ),
         'onme_driver_name' => array(
@@ -101,16 +92,70 @@ class Model_Media extends \Nos\Orm\Model
             'events' => array('before_save'),
             'mysql_timestamp' => true,
             'property'=>'onme_updated_at'
-        )
+        ),
+        'Orm\\Observer_Typing'
     );
 
-    public static function accept_service ($url)
-    {
-        $url = parse_url($url);
-        if (!in_array($url['path'], self::$services_url)) {
-            return false;
-        } else {
-            return true;
+    protected $driver           = false;
+
+    /**
+     * Construit le driver à partir du média distant
+     *
+     * @param bool $force
+     * @return bool
+     */
+    public function driver($force = false) {
+        if ($this->driver === false || $force) {
+            $this->driver = Driver::buildFromMedia($this);
         }
+        return $this->driver;
+    }
+
+    /**
+     * Synchronise le média distant (trouve le bon driver et fetch les attributs)
+     *
+     * @param bool $save
+     * @return bool
+     */
+    public function sync($save = true) {
+        $config = \Config::load('novius_onlinemediafiles::config', true);
+
+        // Reset le driver courant
+        $this->onme_driver_name = $this->driver = false;
+
+        if (!empty($this->onme_url)) {
+            // Search through available drivers
+            foreach ($config['drivers'] as $driver_name) {
+                // Build the driver with the supplied le driver avec l'url fournie
+                if (($driver = Driver::build($driver_name, $this->onme_url))) {
+                    // Is the driver compatible ?
+                    if ($driver->check()) {
+                        // Save the new driver
+                        if (($attributes = $driver->fetch())) {
+                            $this->onme_driver_name = $driver_name;
+                            $this->driver = $driver;
+                            // Save attributes
+                            $this->onme_title = $attributes['title'];
+                            $this->onme_description = $attributes['description'];
+                            $this->onme_thumbnail = $attributes['thumbnail'];
+                            $this->onme_metadatas = serialize($attributes['metadatas']);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!$this->driver) {
+            return false;
+        }
+        return $save ? $this->save() : true;
+    }
+
+    public function thumbnail() {
+        return $this->driver()->thumbnail();
+    }
+
+    public function display() {
+        return $this->driver()->display(false);
     }
 }

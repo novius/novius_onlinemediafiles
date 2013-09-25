@@ -12,38 +12,33 @@ namespace Novius\OnlineMediaFiles;
 
 class Driver_Vimeo extends Driver {
 
-    public function preview() {
-        // Charge les attributs du média distant
-        $attributes = $this->getAttributes();
-        if (!empty($attributes)) {
-            ?>
-            <img src="<?= $this->attributes['thumbnail'] ?>" alt="<?= $this->attributes['title'] ?>" />
-            <?
-        }
-    }
-
-    public function display() {
-        $attributes = $this->getAttributes();
-        $identifier = $this->extractIdentifier();
-        if (!empty($attributes) && !empty($identifier)) {
-            ?>
-            <iframe src="//player.vimeo.com/video/<?= $identifier ?>" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-            <?
-        }
-    }
-
     public function check() {
-        if (!$this->getUrl()) {
-            return false;
-        }
+        // Check if the driver is compatible by extracting the identifier from the url
+        return ($this->url() && $this->identifier(false));
+    }
 
-        // Check if the host match by extracting the identifier
-        if (($identifier = $this->extractIdentifier())) {
-            $this->identifier = $identifier;
-            return true;
+    public function preview($echo = true) {
+        // Charge les attributs du média distant
+        $attributes = $this->attributes();
+        if (empty($attributes) || empty($attributes['thumbnail'])) {
+            return '';
         }
+        if (!$echo) ob_start();
+        ?>
+        <img src="<?= $attributes['thumbnail'] ?>" alt="<?= $attributes['title'] ?>" />
+        <?
+        return (!$echo ? ob_get_clean() : true);
+    }
 
-        return false;
+    public function display($echo = true) {
+        if (!$this->identifier()) {
+            return '';
+        }
+        if (!$echo) ob_start();
+        ?>
+        <iframe src="//player.vimeo.com/video/<?= $this->identifier() ?>" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+        <?
+        return (!$echo ? ob_get_clean() : true);
     }
 
     /**
@@ -52,20 +47,22 @@ class Driver_Vimeo extends Driver {
      * @return bool|mixed
      */
     public function fetch() {
-        $identifier = $this->extractIdentifier();
-        if (empty($identifier)) {
+        if (!$this->identifier()) {
             return false;
         }
 
-        $attributes = array();
-
-        // Extract attributes using the API
-        $json = file_get_contents('http://vimeo.com/api/v2/video/'.$identifier.'.json');
+        // Build the vimeo API url
+        $api_url = 'http://vimeo.com/api/v2/video/'.$this->identifier().'.json';
+        // Check if the video exists by checking the HTTP status code of the API url
+        $headers = get_headers($api_url, 1);
+        if (strpos($headers[0], '200 OK') === false) {
+            return false;
+        }
+        // Get the API response
+        $json = file_get_contents($api_url);
         if (empty($json)) {
             return false;
         }
-
-        // Extract json response
         $response = json_decode($json);
         if (is_array($response)) {
             $response = reset($response);
@@ -74,90 +71,77 @@ class Driver_Vimeo extends Driver {
             return false;
         }
 
-        // Extract title
-        $attributes['title'] = (!empty($response->title) ? $response->title : '');
-        if (empty($attributes['title'])) {
+        // Title is required
+        if (empty($response->title)) {
             return false;
         }
 
-        // Extract description
-        $attributes['description'] = (!empty($response->description) ? $response->description : '');
+        // Build attributes
+        $attributes = array(
+            'title'         => (string) $response->title,
+            'description'   => (string) (!empty($response->description) ? $response->description : ''),
+            'thumbnail'     => false,
+            'metadatas'     => (array) $response,
+        );
 
-        // Extract thumbnail
+        // Get the biggest thumbnail
         if (!empty($response->thumbnail_large)) {
             $attributes['thumbnail'] = $response->thumbnail_large;
         } elseif (!empty($response->thumbnail_medium)) {
             $attributes['thumbnail'] = $response->thumbnail_medium;
         } elseif (!empty($response->thumbnail_small)) {
             $attributes['thumbnail'] = $response->thumbnail_small;
-        } else {
-            $attributes['thumbnail'] = '';
         }
 
-        // Save other attributes as metadatas
-        $attributes['metadatas'] = (array) $response;
+        // Sanitize description
+        $attributes['description'] = preg_replace('`<br\s*/?>`i', "\n", $attributes['description']);
 
         return $attributes;
     }
 
-    public function getCleanUrl() {
-        if (($identifier = $this->extractIdentifier())) {
-            return 'http://www.vimeo.com/video/'.$identifier;
+    public function cleanUrl() {
+        if ($this->identifier()) {
+            return 'http://www.vimeo.com/video/'.$this->identifier();
         }
-        return false;
+        return $this->url();
     }
-
     /**
      * Extract the unique identifier of the online media
      *
+     * @param bool $from_cache
      * @return bool|mixed
      */
-    public function extractIdentifier() {
-        // Already extracted
-        if (!empty($this->identifier)) {
-            return $this->identifier;
+    public function identifier($from_cache = true) {
+        if (!$from_cache || empty($this->identifier)) {
+            $this->identifier = false;
+            // Extract the identifier by host
+            $parts = self::parseUrl($this->url());
+            switch ($parts['host']) {
+                // Standard pattern
+                case 'www.vimeo.com':
+                case 'vimeo.com':
+                    // Extract ID from path
+                    $args = array_values(array_filter(explode('/', $parts['path'])));
+                    // Extract the identifier
+                    $identifier = reset($args);
+                    if (!empty($identifier) && ctype_digit($identifier)) {
+                        $this->identifier = $identifier;
+                    }
+                    break;
+                // Embed pattern
+                case 'player.vimeo.com':
+                    $args = array_values(array_filter(explode('/', $parts['path'])));
+                    // Check the "video" part
+                    if (reset($args) == 'video') {
+                        array_shift($args);
+                    }
+                    $identifier = reset($args);
+                    if (!empty($identifier) && ctype_digit($identifier)) {
+                        $this->identifier = $identifier;
+                    }
+                    break;
+            }
         }
-
-        // Extract by host
-        $parts = self::parseUrl($this->getUrl());
-        switch ($parts['host']) {
-
-            // Standard url
-            case 'www.vimeo.com':
-            case 'vimeo.com':
-                // Extract ID from path
-                $args = array_values(array_filter(explode('/', $parts['path'])));
-
-                // Extract the identifier
-                $identifier = reset($args);
-                if (!empty($identifier) && ctype_digit($identifier)) {
-                    return $identifier;
-                }
-                break;
-
-            // Embed url
-            case 'player.vimeo.com':
-                $args = array_values(array_filter(explode('/', $parts['path'])));
-
-                // Check the "video" part
-                if (reset($args) == 'video') {
-                    array_shift($args);
-                }
-
-                $identifier = reset($args);
-                if (!empty($identifier) && ctype_digit($identifier)) {
-                    return $identifier;
-                }
-                break;
-
-        }
-
-        return false;
-    }
-
-    public function extractMetadatas() {
-
+        return $this->identifier;
     }
 }
-
-//view-source:http://www.vimeo.com/services/oembed?format=json&url=http://www.vimeo.com/video/x14f6vz_shower-elevator-remi-gaillard-censuree-sur-youtube_fun

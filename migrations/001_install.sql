@@ -10,7 +10,7 @@
 CREATE TABLE IF NOT EXISTS `onlinemediafiles` (
   `onme_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `onme_folder_id` int(10) unsigned NOT NULL,
-  `onme_title` varchar(50) NOT NULL,
+  `onme_title` varchar(255) NOT NULL,
   `onme_description` text,
   `onme_url` varchar(255) NOT NULL,
   `onme_created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `onlinemediafiles` (
 CREATE TABLE IF NOT EXISTS `onlinemediafiles_folder` (
   `onfo_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `onfo_parent_id` int(10) unsigned DEFAULT NULL,
-  `onfo_title` varchar(50) NOT NULL,
+  `onfo_title` varchar(100) NOT NULL,
   `onfo_path` varchar(255) NOT NULL,
   `onfo_dir_name` varchar(50) DEFAULT NULL,
   `onfo_created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',

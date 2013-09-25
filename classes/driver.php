@@ -26,7 +26,7 @@ abstract class Driver {
     protected $driver_name      = false;
     protected $class_name       = false;
 
-    static private $forged      = array();
+    static protected $forged    = array();
 
     /**
      * Constructor
@@ -35,7 +35,6 @@ abstract class Driver {
      * @throws \Exception
      */
     public function __construct($url) {
-
         $this->class_name = get_class($this);
         $this->driver_name = substr($this->class_name, strrpos($this->class_name, '\\') + 1);
 
@@ -48,7 +47,7 @@ abstract class Driver {
         if (!empty($this->required_fields)) {
             foreach ($this->required_fields as $name => $field) {
                 if (empty($this->config[$field])) {
-                    throw new \Exception('Authentication: field `'. (is_numeric($name) ? $field : $name) .'` is missing in '. $this->driver_name .' configuration');
+                    throw new \Exception('OnlineMediaFiles: field `'.(is_numeric($name) ? $field : $name).'` is missing in '.$this->driver_name.' configuration');
                 }
             }
         }
@@ -64,10 +63,10 @@ abstract class Driver {
     public static function forge($url, $force = false) {
         $token = get_called_class() .'_'. $url;
         // Not forget yet ?
-        if (!isset(self::$forged[$token]) || $force) {
-            self::$forged[$token] = new static($url);
+        if (!isset(static::$forged[$token]) || $force) {
+            static::$forged[$token] = new static($url);
         }
-        return self::$forged[$token];
+        return static::$forged[$token];
     }
 
     /**
@@ -75,15 +74,16 @@ abstract class Driver {
      *
      * @param $driver_name
      * @param $url
+     * @param $force
      * @return bool
      */
-    public static function build($driver_name, $url) {
+    public static function build($driver_name, $url, $force = false) {
         // Build driver class
         $driver_class = Driver::buildDriverClass($driver_name);
         if (empty($driver_class)) {
             return false;
         }
-        return $driver_class::forge($url);
+        return $driver_class::forge($url, $force);
     }
 
     /**
@@ -93,9 +93,8 @@ abstract class Driver {
      * @return bool
      */
     public static function buildFromMedia($media) {
-
         // Get the driver class name
-        $driver_class = self::buildDriverClass($media->onme_driver_name);
+        $driver_class = static::buildDriverClass($media->onme_driver_name);
         if (empty($driver_class)) {
             return false;
         }
@@ -104,7 +103,7 @@ abstract class Driver {
         $driver = $driver_class::forge($media->onme_url);
 
         // Set the attributes from the media object
-        $driver->setAttributes(array(
+        $driver->attributes(array(
             'title'         => $media->onme_title,
             'description'   => $media->onme_description,
             'thumbnail'     => $media->onme_thumbnail,
@@ -180,125 +179,43 @@ abstract class Driver {
     }
 
     /**
-     * @return bool|string
-     */
-    public function getDriverName() {
-        return $this->driver_name;
-    }
-
-    /**
-     * @return bool|string
-     */
-    public function getClass() {
-        return $this->class_name;
-    }
-
-    /**
-     * Return the url of the online media
+     * Get or set attributes
      *
-     * @return bool
+     * @param bool|mixed $data
+     * @return array
      */
-    public function getUrl() {
-        return $this->url;
-    }
-
-    /**
-     * Return the clean url of the online media
-     *
-     * @return bool
-     */
-    public function getCleanUrl() {
-        return $this->getUrl();
-    }
-
-    /**
-     * Return the unique identifier of the online media
-     *
-     * @return bool
-     */
-    public function getIdentifier() {
-        return $this->identifier;
-    }
-
-    public function getAttributes($auto_fetch = true) {
-        if ($auto_fetch && empty($this->attributes)) {
-            // Fetch attributes if not set
-            $this->fetch();
+    public function attributes($data = null) {
+        if (is_array($data)) {
+            // Set attributes
+            $this->attributes = static::objectToArray($data);
         }
-        return $this->attributes;
-    }
-
-    public function setAttributes($attributes) {
-        $this->attributes = $attributes;
+        // Return attributes
+        return (array) $this->attributes;
     }
 
     /**
-     * Execute a callback with a variable number of arguments and return true or false
-     * - first argument is the callback
-     * - following arguments are passed to the callback
+     * Get or set an attribute
      *
-     * If the callback is empty or not callable then false is returned
-     *
-     * @return bool|mixed
+     * @param $name
+     * @param null $data
+     * @return mixed|null
      */
-    protected function executeCallback() {
-        $args = func_get_args();
-        // First argument is the callback
-        if (count($args) > 0) {
-            $callback = array_shift($args);
-            // Check if it is a valid callbackx
-            if (empty($callback) || !is_callable($callback)) {
-                return false;
-            }
-            // We need at least one argument
-            return call_user_func_array($callback, count($args) > 0 ? $args : array());
+    public function attribute($name, $data = null) {
+        // Set attribute
+        if ($data !== null) {
+            $attributes[$name] = $data;
         }
-        return false;
+        // Return attribute
+        $attributes = $this->attributes();
+        return isset($attributes[$name]) ? $attributes[$name] : null;
     }
 
     /**
-     * Apply a callback with a variable number of arguments
-     * - first argument is the callback
-     * - following arguments are passed to the callback
+     * Enhanced parse_url()
      *
-     * If the callback is empty or not callable then the first passed args is returned
-     *
-     * @return bool|mixed
+     * @param $url
+     * @return mixed
      */
-    protected function applyCallback() {
-        $args = func_get_args();
-        // First argument is the callback
-        if (count($args) > 0) {
-            $callback = array_shift($args);
-            // Check if it is a valid callback
-            if (empty($callback) || !is_callable($callback)) {
-                // Return the first argument if no callback defined
-                return count($args) > 0 ? array_shift($args) : false;
-            }
-            // We need at least one argument
-            return call_user_func_array($callback, count($args) > 0 ? $args : array());
-        }
-        return false;
-    }
-
-    /**
-     * Get a column from a dataset or return a callback value
-     *
-     * @param $column_or_callback
-     * @param $dataset
-     * @return bool|mixed
-     */
-    protected function getColumnOrCallback($column_or_callback, $dataset) {
-        if (!empty($column_or_callback)) {
-            $dataset = (object) $dataset;
-            if (is_callable($column_or_callback)) {
-                return call_user_func($column_or_callback, $dataset);
-            }
-            return isset($dataset->{$column_or_callback}) ? $dataset->{$column_or_callback} : false;
-        }
-        return false;
-    }
-
     public static function parseUrl($url) {
         // Add http if necessary
         if (substr($url, 0, 2) == '//') {
@@ -307,6 +224,89 @@ abstract class Driver {
             $url = 'http://'.$url;
         }
         return parse_url($url);
+    }
+
+    public static function objectToArray($obj) {
+        $arrObj = is_object($obj) ? get_object_vars($obj) : $obj;
+        if (!is_array($arrObj)) {
+            return $obj;
+        }
+        foreach ($arrObj as $key => $val) {
+            $val = (is_array($val) || is_object($val)) ? static::objectToArray($val) : $val;
+            $arr[$key] = $val;
+        }
+        return $arr;
+    }
+
+    /**
+     * Return the driver's name
+     *
+     * @return bool|string
+     */
+    public function driverName() {
+        return $this->driver_name;
+    }
+
+    /**
+     * Return the driver's class name
+     * @return bool|string
+     */
+    public function className() {
+        return $this->class_name;
+    }
+
+    /**
+     * Return the url of the online media
+     *
+     * @return bool
+     */
+    public function url() {
+        return $this->url;
+    }
+
+    /**
+     * Return the clean url of the online media
+     *
+     * @return bool
+     */
+    public function cleanUrl() {
+        return $this->url();
+    }
+
+    /**
+     * Return the thumbnail url
+     *
+     * @return mixed
+     */
+    public function thumbnail() {
+        return $this->attribute('thumbnail');
+    }
+
+    /**
+     * Get the description
+     *
+     * @return mixed
+     */
+    public function description() {
+        return $this->attribute('description');
+    }
+
+    /**
+     * Get the metadatas (additionnal fetched attributes)
+     *
+     * @return mixed
+     */
+    public function metadatas() {
+        return $this->attribute('metadatas');
+    }
+
+    /**
+     * Get the unique identifier
+     *
+     * @return bool
+     */
+    public function identifier() {
+        return $this->identifier;
     }
 
     /**
@@ -336,5 +336,4 @@ abstract class Driver {
      * @return mixed
      */
     abstract public function preview();
-
 }
