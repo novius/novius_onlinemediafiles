@@ -4,6 +4,7 @@ $appdeskview = (string) Request::forge('admin/novius_onlinemediafiles/appdesk/in
 $uniqid = uniqid('tabs_');
 $id_library = $uniqid.'_library';
 $id_properties = $uniqid.'_properties';
+
 ?>
 <style type="text/css">
     .box-sizing-border {
@@ -15,25 +16,32 @@ $id_properties = $uniqid.'_properties';
 </style>
 <div id="<?= $uniqid ?>" class="box-sizing-border">
     <ul>
-        <li><a href="#<?= $id_library ?>"><?= $edit ? __('Pick another media') : __('1. Pick a media') ?></a></li>
-        <li><a href="#<?= $id_properties ?>"><?= $edit ? __('Edit properties') : __('2. Set the properties') ?></a></li>
+        <li><a href="#<?= $id_library ?>"><?= $media_id ? __('Pick another media') : __('1. Pick a media') ?></a></li>
+        <li><a href="#<?= $id_properties ?>"><?= $media_id ? __('Edit properties') : __('2. Set the properties') ?></a></li>
     </ul>
 
     <div id="<?= $id_library ?>" class="box-sizing-border"></div>
 
     <div id="<?= $id_properties ?>">
         <form action="<?= $url ?>" method="POST">
+            <input type="hidden" name="media_id" data-id="media_id" size="5" id="<?= $uniqid ?>_media_id" value="<?= $media_id ?>" />
+            <input type="hidden" name="enhancer" value="novius_onlinemediafiles_display" />
             <table class="fieldset">
                 <tr>
-                    <th>Media ID</th>
+                    <th>Largeur</th>
                     <td>
-                        <input type="text" name="media_id" data-id="media_id" size="5" id="<?= $uniqid ?>_media_id" />
-                        <input type="hidden" name="enhancer" value="novius_onlinemediafiles_display" />
+                        <input type="text" name="media_width" data-id="media_width" size="5" id="media_width" value="<?= \Input::get('media_width', '') ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>Hauteur</th>
+                    <td>
+                        <input type="text" name="media_height" data-id="media_height" size="5" id="media_height" value="<?= \Input::get('media_height', '') ?>" />
                     </td>
                 </tr>
                 <tr>
                     <th></th>
-                    <td> <button type="submit" class="primary" data-icon="check" data-id="save"><?= $edit ? __('Update this image') : __('Insert this media') ?></button> &nbsp; <?= __('or') ?> &nbsp; <a data-id="close" href="#"><?= __('Cancel') ?></a></td>
+                    <td> <button type="submit" class="primary" data-icon="check" data-id="save"><?= $media_id ? __('Update this image') : __('Insert this media') ?></button> &nbsp; <?= __('or') ?> &nbsp; <a data-id="close" href="#"><?= __('Cancel') ?></a></td>
                 </tr>
             </table>
         </form>
@@ -45,7 +53,7 @@ $id_properties = $uniqid.'_properties';
         function($) {
             $(function() {
                 $('#<?= $uniqid ?>').mediaWysiwyg({
-                    newMedia: !'<?= $edit ?>',
+                    newMedia: !'<?= ($media_id) ?>',
                     appdeskView: <?= \Format::forge()->to_json($appdeskview) ?>,
                     base_url: '<?= \Uri::base(true) ?>',
                     texts: {

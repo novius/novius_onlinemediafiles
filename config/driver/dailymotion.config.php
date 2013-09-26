@@ -1,6 +1,10 @@
 <?php
 
 return array(
+	'name'		=> __('Dailymotion'),
+	'icon'		=> array(
+		'16' => 'dailymotion.png',
+	),
     // Fields to fetch using the API
     'api_fields' => array(
         'allow_comments',

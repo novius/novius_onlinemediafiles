@@ -20,13 +20,14 @@ class Controller_Front extends \Nos\Controller_Front_Application {
         }
         $media = Model_Media::find($args['media_id']);
 
-        // Instancie le driver
-        if (empty($media->onme_driver_name)) {
-            return false;
-        }
-        $driver = Driver::buildFromMedia($media);
-
+		$params = array();
+		if (!empty($args['media_width'])) {
+			$params['attributes']['width'] = $args['media_width'];
+		}
+		if (!empty($args['media_height'])) {
+			$params['attributes']['height'] = $args['media_height'];
+		}
         // Affiche le media
-        $driver->display();
+        return $media->display($params);
     }
 }

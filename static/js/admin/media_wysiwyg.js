@@ -24,6 +24,18 @@ define(['jquery-nos', 'wijmo.wijtabs'],
                                     success: function(json) {
                                         log(json);
                                         $container.closest('.ui-dialog-content').trigger('save.enhancer', json);
+//                                        $('.nosEnhancer').each(function() {
+//                                            console.log($(this).html());
+//                                            if ($(this).data('enhancer') == 'novius_onlinemediafiles_display') {
+//                                                $(this).find('iframe').each(function() {
+//                                                    var $this = $(this);
+//                                                    if (!$this.closest('.onlinemedia_preview').length) {
+//                                                        $this.after('<div class="onlinemedia_preview">'+$this.html()+'</div>');
+//                                                        $this.remove();
+//                                                    }
+//                                                });
+//                                            }
+//                                        });
                                     },
                                     error: function(error) {
                                         $.nosNotify('An error occured', 'error');

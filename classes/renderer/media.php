@@ -46,6 +46,27 @@ class Renderer_Media extends \Fieldset_Field
      */
     public function build()
     {
+		// Get the item
+		$item = $this->fieldset()->getInstance();
+        // Cherche si le nom du champ correspond à une relation many_many (auquel cas c'est un champ multiple)
+
+		// Multiple
+		if (is_array($item->{$this->name})) {
+			d('multiple');
+		}
+		// Single
+		else {
+			d('single');
+		}
+        d($this->name);
+//        dd($item->relations($this->name));
+        // Charge les valeurs par défaut
+        // Cherche la relation
+
+        foreach ($item->{$this->name} as $relation) {
+
+        }
+
         parent::build();
         $this->fieldset()->append(static::js_init($this->get_attribute('id')));
         static::hydrate_options($this->options, array(

@@ -12,34 +12,26 @@ namespace Novius\OnlineMediaFiles;
 
 class Driver_Vimeo extends Driver {
 
-    public function check() {
+	protected $identifier       = false;
+
+    public function compatible() {
         // Check if the driver is compatible by extracting the identifier from the url
         return ($this->url() && $this->identifier(false));
     }
 
-    public function preview($echo = true) {
-        // Charge les attributs du média distant
-        $attributes = $this->attributes();
-        if (empty($attributes) || empty($attributes['thumbnail'])) {
-            return '';
-        }
-        if (!$echo) ob_start();
-        ?>
-        <img src="<?= $attributes['thumbnail'] ?>" alt="<?= $attributes['title'] ?>" />
-        <?
-        return (!$echo ? ob_get_clean() : true);
-    }
-
-    public function display($echo = true) {
-        if (!$this->identifier()) {
-            return '';
-        }
-        if (!$echo) ob_start();
-        ?>
-        <iframe src="//player.vimeo.com/video/<?= $this->identifier() ?>" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-        <?
-        return (!$echo ? ob_get_clean() : true);
-    }
+	public function display($params = array()) {
+		return parent::display(\Arr::merge(array(
+			'attributes'	=> array(
+				'src'					=> '//player.vimeo.com/video/'.$this->identifier(),
+				'width'					=> 500,
+				'height'				=> 281,
+				'frameborder'			=> '0',
+				'webkitallowfullscreen'	=> true,
+				'mozallowfullscreen'	=> true,
+				'allowfullscreen'		=> true,
+			)
+		), $params));
+	}
 
     /**
      * Fetch the attributes of the online media (title, description...)
@@ -51,25 +43,22 @@ class Driver_Vimeo extends Driver {
             return false;
         }
 
-        // Build the vimeo API url
+		// Build the API url
         $api_url = 'http://vimeo.com/api/v2/video/'.$this->identifier().'.json';
-        // Check if the video exists by checking the HTTP status code of the API url
-        $headers = get_headers($api_url, 1);
-        if (strpos($headers[0], '200 OK') === false) {
-            return false;
-        }
-        // Get the API response
-        $json = file_get_contents($api_url);
-        if (empty($json)) {
-            return false;
-        }
-        $response = json_decode($json);
-        if (is_array($response)) {
-            $response = reset($response);
-        }
-        if (empty($response)) {
-            return false;
-        }
+
+		// Check if the API is up
+		if (!static::ping($api_url)) {
+			return false;
+		}
+
+		// Get the json response
+		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
+		if (is_array($response)) {
+			$response = reset($response);
+		}
+		if (empty($response)) {
+			return false;
+		}
 
         // Title is required
         if (empty($response->title)) {

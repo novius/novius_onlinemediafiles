@@ -31,7 +31,7 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
                 if (($driver = Driver::build($driver_name, $url))) {
 
                     // Check si le driver est compatible avec l'url du média distant
-                    if ($driver->check()) {
+                    if ($driver->compatible()) {
 
                         // Extrait les attributs du média distant (titre, description...)
                         $attributes = $driver->fetch();
@@ -42,8 +42,8 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
                         }
 
                         $attributes['driver_name'] = $driver_name;
-                        $attributes['display'] = $driver->display(false);
-                        $attributes['preview'] = $driver->preview(false);
+                        $attributes['display'] = $driver->display();
+                        $attributes['preview'] = $driver->preview();
                         $attributes['metadatas'] = Driver::objectToArray($attributes['metadatas']);
 
                         // Retourne les attributs au format json

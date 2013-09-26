@@ -7,5 +7,9 @@ return array(
         'Youtube',
         'Dailymotion',
         'Vimeo',
+		'Soundcloud',
+		'Flickr',
+		'Instagram',
+		'Oembed',
     ),
 );

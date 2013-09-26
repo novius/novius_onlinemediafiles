@@ -60,7 +60,15 @@ class Model_Media extends \Nos\Orm\Model
     );
 
     protected static $_has_one = array();
-    protected static $_many_many = array();
+    protected static $_many_many = array(
+        'videos' => array(
+            'key_from' => 'onme_id',
+            'model_to' => 'Novius\OnlineMediaFiles\Model_Link',
+            'key_to' => 'onli_onme_id',
+            'cascade_save' => false,
+            'cascade_delete' => false,
+        ),
+    );
 
     protected static $_belongs_to = array(
         'folder' => array(
@@ -102,7 +110,7 @@ class Model_Media extends \Nos\Orm\Model
      * Construit le driver à partir du média distant
      *
      * @param bool $force
-     * @return bool
+     * @return Driver
      */
     public function driver($force = false) {
         if ($this->driver === false || $force) {
@@ -129,7 +137,7 @@ class Model_Media extends \Nos\Orm\Model
                 // Build the driver with the supplied le driver avec l'url fournie
                 if (($driver = Driver::build($driver_name, $this->onme_url))) {
                     // Is the driver compatible ?
-                    if ($driver->check()) {
+                    if ($driver->compatible()) {
                         // Save the new driver
                         if (($attributes = $driver->fetch())) {
                             $this->onme_driver_name = $driver_name;
@@ -155,7 +163,7 @@ class Model_Media extends \Nos\Orm\Model
         return $this->driver()->thumbnail();
     }
 
-    public function display() {
-        return $this->driver()->display(false);
+    public function display($params = array()) {
+        return $this->driver()->display($params);
     }
 }

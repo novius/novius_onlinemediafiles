@@ -15,11 +15,7 @@ abstract class Driver {
     // Required fields in driver's config file
     protected $required_fields  = array();
 
-    // Url of the online media (set by the constructor)
     protected $url            = false;
-
-    // Unique identifier of the online media (id, clean url...)
-    protected $identifier       = false;
     protected $attributes       = array();
 
     protected $config           = array();
@@ -116,7 +112,7 @@ abstract class Driver {
     /**
      * Load config and dependencies' config.
      */
-    protected function loadConfig() {
+	protected function loadConfig() {
         // Load the driver's common config
         list($application, $file) = \Config::configFile(get_parent_class($this));
         $config = \Config::load($application . '::' . $file, true);
@@ -203,39 +199,58 @@ abstract class Driver {
     public function attribute($name, $data = null) {
         // Set attribute
         if ($data !== null) {
-            $attributes[$name] = $data;
+            $this->attributes[$name] = $data;
         }
         // Return attribute
-        $attributes = $this->attributes();
-        return isset($attributes[$name]) ? $attributes[$name] : null;
+        return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
     }
 
     /**
      * Enhanced parse_url()
      *
      * @param $url
+     * @param $component
      * @return mixed
      */
-    public static function parseUrl($url) {
+    public static function parseUrl($url, $component = -1) {
         // Add http if necessary
         if (substr($url, 0, 2) == '//') {
             $url = 'http:'.$url;
         } elseif (!preg_match('`^https?://`', $url)) {
             $url = 'http://'.$url;
         }
-        return parse_url($url);
+        return parse_url($url, $component);
     }
 
-    public static function objectToArray($obj) {
-        $arrObj = is_object($obj) ? get_object_vars($obj) : $obj;
-        if (!is_array($arrObj)) {
-            return $obj;
-        }
-        foreach ($arrObj as $key => $val) {
-            $val = (is_array($val) || is_object($val)) ? static::objectToArray($val) : $val;
-            $arr[$key] = $val;
-        }
-        return $arr;
+	/**
+	 * Ping the given url (check HTTP status 200)
+	 *
+	 * @param $url
+	 * @return bool
+	 */
+	public static function ping($url) {
+		$headers = get_headers($url, 1);
+		return strpos($headers[0], '200 OK') !== false;
+	}
+
+	/**
+	 * Convert recursively ojects in array
+	 *
+	 * @param $obj
+	 * @return object
+	 */
+	public static function objectToArray($obj) {
+		if (is_array($obj)) {
+			return array_map('static::objectToArray', $obj);
+		} elseif (is_object($obj)) {
+			$arr = array();
+			$obj = get_object_vars($obj);
+			foreach ($obj as $key => $val) {
+				$arr[$key] = static::objectToArray($val);
+			}
+			return $arr;
+		}
+		return $obj;
     }
 
     /**
@@ -273,6 +288,25 @@ abstract class Driver {
         return $this->url();
     }
 
+	/**
+	 * Return the host
+	 *
+	 * @return mixed
+	 */
+	public function host() {
+		$parts = self::parseUrl($this->url());
+		return $parts['host'];
+	}
+
+	/**
+	 * Return the title
+	 *
+	 * @return mixed
+	 */
+	public function title() {
+		return $this->attribute('title');
+	}
+
     /**
      * Return the thumbnail url
      *
@@ -300,40 +334,63 @@ abstract class Driver {
         return $this->attribute('metadatas');
     }
 
-    /**
-     * Get the unique identifier
-     *
-     * @return bool
-     */
-    public function identifier() {
-        return $this->identifier;
-    }
+	/**
+	 * Show the online media
+	 *
+	 * @param array $params
+	 * @return mixed|string
+	 */
+	public function display($params = array()) {
+		$params = \Arr::merge(array(
+			'template'		=> '{display}',
+			'attributes'	=> array(
+				'src'			=> $this->url(),
+				'width'			=> 480,
+				'height'		=> 270,
+				'frameborder'	=> '0',
+			)
+		), $params);
+
+		$attributes = \Arr::filter_recursive($params['attributes'], function($value) {
+			return ($value !== null);
+		});
+
+		$display = '<iframe'.(!empty($attributes) ? ' '.array_to_attr($attributes) : '').'></iframe>';
+		$display = str_replace('{display}', $display, $params['template']);
+		return $display;
+	}
+
+	/**
+	 * Show a preview of the online media
+	 *
+	 * @param array $params
+	 * @return mixed|string
+	 */
+	public function preview($params = array()) {
+		$params = \Arr::merge(array(
+			'template'	=> '{preview}',
+		), $params);
+
+		if (!$this->thumbnail()) {
+			return '';
+		}
+
+		$preview = '<img src="'.$this->thumbnail().'" title="'.e($this->title()).'" alt="'.e($this->title()).'" />';
+		$preview = str_replace('{preview}', $preview, $params['template']);
+		return $preview;
+	}
+
+	/**
+	 * Check if the url is compatible with the driver
+	 *
+	 * @return mixed
+	 */
+	abstract public function compatible();
 
     /**
-     * Fetch the metadatas of the online media (title, description, thumbnail...)
+     * Fetch the attributes (title, description, thumbnail...)
      *
      * @return mixed
      */
     abstract public function fetch();
-
-    /**
-     * Check if the url is compatible with the driver
-     *
-     * @return mixed
-     */
-    abstract public function check();
-
-    /**
-     * Show the online media
-     *
-     * @return mixed
-     */
-    abstract public function display();
-
-    /**
-     * Show a preview of the online media
-     *
-     * @return mixed
-     */
-    abstract public function preview();
 }

@@ -12,33 +12,22 @@ namespace Novius\OnlineMediaFiles;
 
 class Driver_Dailymotion extends Driver {
 
-    public function check() {
+	protected $identifier       = false;
+
+    public function compatible() {
         // Check if the driver is compatible by extracting the identifier from the url
         return ($this->url() && $this->identifier(false));
     }
 
-    public function preview($echo = true) {
-        // Charge les attributs du média distant
-        $attributes = $this->attributes();
-        if (empty($attributes) || empty($attributes['thumbnail'])) {
-            return '';
-        }
-        if (!$echo) ob_start();
-        ?>
-        <img src="<?= $attributes['thumbnail'] ?>" alt="<?= $attributes['title'] ?>" />
-        <?
-        return (!$echo ? ob_get_clean() : '');
-    }
-
-    public function display($echo = true) {
-        if (!$this->identifier()) {
-            return '';
-        }
-        if (!$echo) ob_start();
-        ?>
-        <iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/<?= $this->identifier() ?>"></iframe>
-        <?
-        return (!$echo ? ob_get_clean() : '');
+    public function display($params = array()) {
+		return parent::display(\Arr::merge(array(
+			'attributes'	=> array(
+				'src'			=> '//www.dailymotion.com/embed/video/'.$this->identifier(),
+				'width'			=> 480,
+				'height'		=> 270,
+				'frameborder'	=> '0',
+			)
+		), $params));
     }
 
     /**
@@ -51,23 +40,20 @@ class Driver_Dailymotion extends Driver {
             return false;
         }
 
-        // Build the dailymotion API url
-        $fields = (!empty($this->config['api_fields']) ? '?fields='.implode(',', $this->config['api_fields']) : '');
-        $api_url = 'https://api.dailymotion.com/video/'.$this->identifier().$fields;
-        // Check if the video exists by checking the HTTP status code of the API url
-        $headers = get_headers($api_url, 1);
-        if (strpos($headers[0], '200 OK') === false) {
-            return false;
-        }
-        // Get the API response
-        $json = file_get_contents($api_url);
-        if (empty($json)) {
-            return false;
-        }
-        $response = json_decode($json);
-        if (empty($response)) {
-            return false;
-        }
+		// Build the API url
+		$fields = (!empty($this->config['api_fields']) ? '?fields='.implode(',', $this->config['api_fields']) : '');
+		$api_url = 'https://api.dailymotion.com/video/'.$this->identifier().$fields;
+
+		// Check if the API is up
+		if (!static::ping($api_url)) {
+			return false;
+		}
+
+		// Get the json response
+		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
+		if (empty($response) || empty($response->data)) {
+			return false;
+		}
 
         // Title is required
         if (empty($response->title)) {

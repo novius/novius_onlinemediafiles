@@ -10,7 +10,7 @@ return array(
         'title' => 'onme_url',
         'content' => array(
             'params_js' => array(
-                'view' => 'novius_onlinemediafiles::admin/retrieve_video',
+                'view' => 'novius_onlinemediafiles::admin/sync_video',
             ),
             'properties' => array(
                 'view' => 'nos::form/expander',
@@ -27,7 +27,7 @@ return array(
                             'fields' => array(
                                 'onme_title',
                                 'onme_description',
-                                'onme_driver_name',
+								'onme_thumbnail',
                             ),
                         ),
                     ),
@@ -155,7 +155,7 @@ return array(
         'onme_description' => array(
             'form' => array(
                 'type' => 'textarea',
-                'rows' => '20',
+                'rows' => '12',
             ),
             'label' => 'Description',
         ),
@@ -178,9 +178,9 @@ return array(
             ),
         ),
         'onme_thumbnail' => array (
-            'label' => 'ID: ',
+            'label' => 'Miniature',
             'form' => array(
-                'type' => 'hidden',
+                'type' => 'text',
             ),
         ),
         'thumbnail' => array(

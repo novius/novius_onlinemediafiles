@@ -4,7 +4,7 @@ $btn_synchro_id = uniqid('btn_synchro_');
 
 ?>
 <script type="text/javascript">
-    require(['jquery-nos', 'static/apps/novius_onlinemediafiles/js/admin/retrieve_video.js'], function ($, callback_fn) {
+    require(['jquery-nos', 'static/apps/novius_onlinemediafiles/js/admin/sync_video.js'], function ($, callback_fn) {
         $(function () {
             callback_fn.call($('#<?= $wrapper_button_id ?>'), $('#<?= $btn_synchro_id ?>'), <?= intval($item->onme_id) ?>, '<?= $fieldset->form()->get_attribute('id') ?>');
         });

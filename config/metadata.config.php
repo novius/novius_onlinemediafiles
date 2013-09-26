@@ -1,7 +1,7 @@
 <?php
 return array(
-    'name'    => __('Vidéos d\'Internet'),
-    'version' => 'dev',
+    'name'    => __('Médias d\'internet'),
+    'version' => 'beta',
     'icons' => array(
         64 => 'static/apps/novius_onlinemediafiles/img/64-icon.png',
         32 => 'static/apps/novius_onlinemediafiles/img/32-icon.png',
@@ -15,7 +15,7 @@ return array(
     'namespace' => 'Novius\OnlineMediaFiles',
     'launchers' => array(
 		'novius_onlinemediafiles' => array(
-            'name'    => 'Vidéos d \'Internet',
+            'name'    => 'Médias d\'Internet',
             'action' => array(
                 'action' => 'nosTabs',
                 'tab' => array(

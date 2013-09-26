@@ -12,34 +12,24 @@ namespace Novius\OnlineMediaFiles;
 
 class Driver_Youtube extends Driver {
 
-    public function check() {
+	protected $identifier       = false;
+
+    public function compatible() {
         // Check if the driver is compatible by extracting the identifier from the url
         return ($this->url() && $this->identifier(false));
     }
 
-    public function preview($echo = true) {
-        // Charge les attributs du média distant
-        $attributes = $this->attributes();
-        if (empty($attributes) || empty($attributes['thumbnail'])) {
-            return '';
-        }
-        if (!$echo) ob_start();
-        ?>
-        <img src="<?= $attributes['thumbnail'] ?>" alt="<?= $attributes['title'] ?>" />
-        <?
-        return (!$echo ? ob_get_clean() : '');
-    }
-
-    public function display($echo = true) {
-        if (!$this->identifier()) {
-            return '';
-        }
-        if (!$echo) ob_start();
-        ?>
-        <iframe width="560" height="315" src="//www.youtube.com/embed/<?= $this->identifier() ?>?&wmode=opaque" frameborder="0" allowfullscreen></iframe>
-        <?
-        return (!$echo ? ob_get_clean() : '');
-    }
+	public function display($params = array()) {
+        return parent::display(\Arr::merge(array(
+			'attributes'	=> array(
+				'src'				=> '//www.youtube.com/embed/'.$this->identifier().'?&wmode=opaque',
+				'width'				=> 560,
+				'height'			=> 315,
+				'frameborder'		=> '0',
+				'allowfullscreen'	=> true,
+			)
+		), $params));
+	}
 
     /**
      * Fetch the online media attributes (title, description, metadatas...)
@@ -53,14 +43,17 @@ class Driver_Youtube extends Driver {
 
         // Call the youtube API
         $api_url = 'http://gdata.youtube.com/feeds/api/videos/'.$this->identifier().'?v=2&alt=jsonc';
-        $json = file_get_contents($api_url);
-        if (empty($json)) {
-            return false;
-        }
-        $response = json_decode($json);
-        if (empty($response) || empty($response->data)) {
-            return false;
-        }
+
+		// Check if the API is up
+		if (!static::ping($api_url)) {
+			return false;
+		}
+
+		// Get the json response
+		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
+		if (empty($response) || empty($response->data)) {
+			return false;
+		}
 
         // Title is required
         if (empty($response->data->title)) {
