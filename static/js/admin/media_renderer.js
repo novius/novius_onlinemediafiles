@@ -44,8 +44,10 @@ require([
                 $skeleton = $input.closest('.add_field').clone();
                 // Reset le média selectionné
                 var media_options = $skeleton.find('input.onlinemediafile_input').data('media-options');
-                media_options.inputFileThumb.file = '';
-                $skeleton.find('input.onlinemediafile_input').data('media-options', media_options);
+                if (media_options.inputFileThumb && media_options.inputFileThumb.file) {
+                    media_options.inputFileThumb.file = '';
+                    $skeleton.find('input.onlinemediafile_input').data('media-options', media_options);
+                }
             }
 
             var data = $input.data('media-options');
