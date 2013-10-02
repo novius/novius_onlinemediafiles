@@ -60,15 +60,6 @@ class Model_Media extends \Nos\Orm\Model
     );
 
     protected static $_has_one = array();
-    protected static $_many_many = array(
-        'videos' => array(
-            'key_from' => 'onme_id',
-            'model_to' => 'Novius\OnlineMediaFiles\Model_Link',
-            'key_to' => 'onli_onme_id',
-            'cascade_save' => false,
-            'cascade_delete' => false,
-        ),
-    );
 
     protected static $_belongs_to = array(
         'folder' => array(
@@ -76,16 +67,6 @@ class Model_Media extends \Nos\Orm\Model
             'model_to'       => 'Novius\OnlineMediaFiles\Model_Folder',
             'key_to'         => 'onfo_id',
             'cascade_save'   => false,
-            'cascade_delete' => false,
-        ),
-    );
-
-    protected static $_has_many = array(
-        'link' => array(
-            'key_from' => 'onme_id',
-            'model_to' => 'Novius\OnlineMediaFiles\Model_Link',
-            'key_to' => 'onli_onme_id',
-            'cascade_save' => false,
             'cascade_delete' => false,
         ),
     );
