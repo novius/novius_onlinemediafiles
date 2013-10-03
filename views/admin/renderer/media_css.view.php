@@ -9,15 +9,12 @@
     }
     .onlinemediafiles_renderer .add_another {
         float: left;
-        margin: 10px 0;
+        margin: 10px 0 10px 10px;
         width: 60px;
         height: 60px;
         line-height: 60px;
-    }
-    .onlinemediafiles_renderer .add_another {
         font-size: 20px;
         font-weight: bold;
-        margin-left: 10px;
     }
     .onlinemediafiles_renderer .ui-inputfilethumb .ui-inputfilethumb-hover {
         margin-left: -1px !important;

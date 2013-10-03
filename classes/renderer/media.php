@@ -29,7 +29,7 @@ class Renderer_Media extends \Fieldset_Field
      * CRUD build of the media renderer
      *
      * @return bool|string
-     * @throws Exception
+     * @throws \Exception
      */
     public function build()
     {
@@ -39,7 +39,7 @@ class Renderer_Media extends \Fieldset_Field
         $item = $this->fieldset()->getInstance();
         $field_name = $this->name;
         if (!isset($item->{$field_name})) {
-            return false;
+            throw new \Exception('Field or relation `'.$field_name.'` cannot be found in '.get_class($item));
         }
 
         $is_multiple = isset($this->options['multiple']) ? $this->options['multiple'] : is_array($item->{$field_name});
