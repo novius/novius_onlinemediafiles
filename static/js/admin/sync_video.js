@@ -166,7 +166,8 @@ define(
              */
             function show_properties()
             {
-                $container.show();//css('visibility', 'visible');
+//                $container.show();//css('visibility', 'visible');
+                $container.css('height', 'auto');
 
 //                // Thumbnail
 //                $form.find('div.wrap_preview').html('');
@@ -206,6 +207,11 @@ define(
                 }
             }
 
+            function hide_properties()
+            {
+                $container.css('height', 0);
+            }
+
             function generate_table(datas) {
                 var $table = $('<ul class="list"></ul>');
                 $.each(datas, function(key, val) {
@@ -216,11 +222,6 @@ define(
                     }
                 });
                 return $table;
-            }
-
-            function hide_properties()
-            {
-                $container.hide();
             }
 
             function escapeHTML(value) {
