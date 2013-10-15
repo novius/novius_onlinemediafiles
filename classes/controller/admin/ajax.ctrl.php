@@ -21,7 +21,7 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
 
             // Pas d'url spécifiée
             if (empty($url)) {
-                throw new \Exception('Veuillez préciser l\'url du média distant');
+                throw new \Exception('Veuillez préciser l\'url du média internet');
             }
 
             // Parcours les drivers disponibles
@@ -30,15 +30,15 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
                 // Build le driver avec l'url fournie
                 if (($driver = Driver::build($driver_name, $url))) {
 
-                    // Check si le driver est compatible avec l'url du média distant
+                    // Check si le driver est compatible avec l'url du média internet
                     if ($driver->compatible()) {
 
-                        // Extrait les attributs du média distant (titre, description...)
+                        // Extrait les attributs du média internet (titre, description...)
                         $attributes = $driver->fetch();
 
                         // Video introuvable
                         if (empty($attributes)) {
-                            throw new \Exception('Ce média distant est introuvable');
+                            throw new \Exception('Ce média internet est introuvable');
                         }
 
                         $attributes['driver_name'] = $driver_name;
@@ -55,7 +55,7 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
             }
 
             // Aucun driver n'est compatible avec l'url fournie
-            throw new \Exception('Ce média distant n\'est pas reconnu');
+            throw new \Exception('Ce média internet n\'est pas reconnu');
         }
 
         // Gestion des erreurs

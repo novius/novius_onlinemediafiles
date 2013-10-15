@@ -12,6 +12,7 @@ return array(
     'provider' => array(
         'name' => 'Novius',
     ),
+    'i18n_file' => 'novius_onlinemediafile::common',
     'namespace' => 'Novius\OnlineMediaFiles',
     'launchers' => array(
 		'novius_onlinemediafiles' => array(
@@ -26,7 +27,7 @@ return array(
     ),
     'enhancers' => array(
         'novius_onlinemediafiles_display' => array(
-            'title'     => 'Média distant',
+            'title'     => 'Nouveau média internet',
             'desc'      => '',
             'id'        => 'onlinemediafiles',
             'previewUrl' => 'admin/novius_onlinemediafiles/enhancer/preview',

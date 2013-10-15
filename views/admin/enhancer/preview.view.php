@@ -1,4 +1,6 @@
 <?
+Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common'));
+
 $media = \Novius\OnlineMediaFiles\Model_Media::find($enhancer_args['media_id']);
 $driver = \Novius\OnlineMediaFiles\Driver::buildFromMedia($media);
 ?>

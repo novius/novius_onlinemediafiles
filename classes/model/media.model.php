@@ -88,7 +88,7 @@ class Model_Media extends \Nos\Orm\Model
     protected $driver           = false;
 
     /**
-     * Construit le driver à partir du média distant
+     * Construit le driver à partir du média internet
      *
      * @param bool $force
      * @return Driver
@@ -101,7 +101,7 @@ class Model_Media extends \Nos\Orm\Model
     }
 
     /**
-     * Synchronise le média distant (trouve le bon driver et fetch les attributs)
+     * Synchronise le média internet (trouve le bon driver et fetch les attributs)
      *
      * @param bool $save
      * @return bool

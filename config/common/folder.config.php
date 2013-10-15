@@ -1,4 +1,5 @@
 <?php
+\Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common'));
 
 return array(
     'data_mapping' => array(

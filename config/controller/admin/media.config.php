@@ -1,4 +1,5 @@
 <?php
+\Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common'));
 
 return array(
     'controller_url'  => 'admin/novius_onlinemediafiles/media',
@@ -95,7 +96,7 @@ return array(
                 'class' => 'Model_Folder',
 //                'multiple' => '1',
             ),
-            'label' => __('Folder'),
+            'label' => __('Select a folder from the list'),
             'form' => array(
             ),
             'input_name'    => 'onme_folder_id',

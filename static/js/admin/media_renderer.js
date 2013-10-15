@@ -21,12 +21,16 @@ require([
                     var $clone = $skeleton.clone();
                     var $input = $clone.find('input.onlinemediafile_input').val('');
 
-                    // Reset le média selectionné
-                    var media_options = $input.data('media-options');
+                    // Reset le squelette
+                    var media_options = $input.data('media-options') || $input.attr('data-media-options') || {};
+                    if (typeof media_options.inputFileThumb != 'object') {
+                        media_options.inputFileThumb = {};
+                    }
                     media_options.inputFileThumb.file = '';
-                    $skeleton.data('media-options', media_options);
+                    media_options.inputFileThumb.title = '';
+                    $input.data('media-options', media_options);
 
-                    // Generate new ID
+                    // Generate a new ID
                     var offset = $this.data('add-offset');
                     $this.data('add-offset', offset + 1);
                     $input.attr('id', $first.find('input.onlinemediafile_input').attr('id')+'_'+offset);
@@ -41,17 +45,10 @@ require([
         function initialize_input($input) {
             if (!$skeleton) {
                 // Create the skeleton
-                $skeleton = $input.closest('.add_field').clone();
-                // Reset le média selectionné
-                var media_options = $skeleton.find('input.onlinemediafile_input').data('media-options');
-                if (media_options && media_options.inputFileThumb && media_options.inputFileThumb.file) {
-                    media_options.inputFileThumb.file = '';
-                    $skeleton.find('input.onlinemediafile_input').data('media-options', media_options);
-                }
+                $skeleton = $input.closest('.add_field').clone().attr('id', false);
             }
 
-            var data = $input.data('media-options');
-            data = data || {};
+            var data = $input.data('media-options') || {};
             var contentUrls = {
                     'single'   : 'admin/novius_onlinemediafiles/renderer/popup'
                 },
@@ -71,13 +68,20 @@ require([
                         title: titles[data.mode]
                     }).bind('select_media', function(e, item) {
                             $input.inputFileThumb({
-                                file: item.thumbnail || item.thumbnailAlternate || item.icon || false
+                                file    : item.thumbnail || item.thumbnailAlternate || item.icon || false,
+                                title   : item.title || false
                             });
                             $input.val(item.id).trigger('change', {
                                 item : item
                             });
                             $dialog.nosDialog('close');
                         });
+                },
+                'delete': function(e) {
+                    $input.inputFileThumb({
+                        file    : false,
+                        title   : false
+                    });
                 }
             }, data.inputFileThumb || {});
 

@@ -1,4 +1,5 @@
 <?php
+\Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'nos::common'));
 
 $appdeskview = (string) Request::forge('admin/novius_onlinemediafiles/appdesk/index')->execute(array('media_pick'))->response();
 $uniqid = uniqid('tabs_');
@@ -28,20 +29,20 @@ $id_properties = $uniqid.'_properties';
             <input type="hidden" name="enhancer" value="novius_onlinemediafiles_display" />
             <table class="fieldset">
                 <tr>
-                    <th>Largeur</th>
+                    <th><?= __('Width')?></th>
                     <td>
                         <input type="text" name="media_width" data-id="media_width" size="5" id="media_width" value="<?= \Input::get('media_width', '') ?>" />
                     </td>
                 </tr>
                 <tr>
-                    <th>Hauteur</th>
+                    <th><?= __('Height') ?></th>
                     <td>
                         <input type="text" name="media_height" data-id="media_height" size="5" id="media_height" value="<?= \Input::get('media_height', '') ?>" />
                     </td>
                 </tr>
                 <tr>
                     <th></th>
-                    <td> <button type="submit" class="primary" data-icon="check" data-id="save"><?= $media_id ? __('Update this image') : __('Insert this media') ?></button> &nbsp; <?= __('or') ?> &nbsp; <a data-id="close" href="#"><?= __('Cancel') ?></a></td>
+                    <td> <button type="submit" class="primary" data-icon="check" data-id="save"><?= $media_id ? __('Update this media') : __('Insert this media') ?></button> &nbsp; <?= __('or') ?> &nbsp; <a data-id="close" href="#"><?= __('Cancel') ?></a></td>
                 </tr>
             </table>
         </form>

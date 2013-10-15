@@ -19,13 +19,13 @@ UTILISATION :
     Il est également possible d'utiliser le Renderer_Media pour associer un ou plusieurs médias à un Model, des
     exemples d'utilisation du Renderer sont disponibles plus bas dans la doc.
 
-    Vous pouvez associer un ou plusieurs médias distant à un model :
+    Vous pouvez associer un ou plusieurs médias internet à un model :
         - dans le cas d'un seul média il suffit d'ajouter une colonne de type "INT(11)" sur votre model.
         - dans le cas de plusieurs médias il faut créer une relation has_many (et donc une table de liaison).
 
 2) Front-office :
 
-    Pour afficher le média distant associé à un model il y a plusieurs méthodes disponible.
+    Pour afficher le média internet associé à un model il y a plusieurs méthodes disponible.
 
         Afficher le player :
             $model->onlinemedia->display();
@@ -46,9 +46,9 @@ L'application propose un renderer (Renderer_Media) pour associer un ou plusieurs
         $config['fields']['onlinemedia'] = array(
             'label' => '',
             'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',
-            'template' => '<div style="padding: 10px;">{field}</div>',
+            'template' => '<div>{field}</div>',
             'form' => array(
-                'title' => __('Média distant'),
+                'title' => __('Média internet'),
             ),
         );
 
@@ -57,9 +57,9 @@ L'application propose un renderer (Renderer_Media) pour associer un ou plusieurs
             'name'      => 'onlinemedias',
             'multiple'  => true,
             'values'    => array(1),
-            'template'  => '<div style="padding: 10px;">{field}</div>',
+            'template'  => '<div>{field}</div>',
             'form'      => array(
-                'title'     => __('Média distant'),
+                'title'     => __('Média internet'),
             ),
         ));
 

@@ -16,7 +16,7 @@ class Renderer_Media extends \Fieldset_Field
 
     public static function _init()
     {
-        \Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'nos::common'));
+        \Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common'));
     }
 
     public function __construct($name, $label = '', array $renderer = array(), array $rules = array(), \Fuel\Core\Fieldset $fieldset = null)
@@ -242,9 +242,9 @@ class Renderer_Media extends \Fieldset_Field
             'inputFileThumb' => array(
                 'title' => __('Online Media'),
                 'texts' => array(
-                    'add'            => __('Pick a media'),
-                    'edit'           => __('Pick another media'),
-                    'delete'         => __('No media'),
+                    'add'            => __('Pick an internet media'),
+                    'edit'           => __('Pick another internet media'),
+                    'delete'         => __('No internet media'),
                     'wrongExtension' => __('This extension is not allowed.'),
                 ),
             ),

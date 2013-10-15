@@ -1,4 +1,5 @@
 <?php
+\Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common'));
 
 return array(
     'model' => 'Novius\OnlineMediaFiles\Model_Media',
@@ -40,13 +41,13 @@ return array(
 //        )
 //    ),
     'i18n' => array(
-        'item' => __('media file'),
-        'items' => __('media files'),
-        'showNbItems' => __('Showing {{x}} media files out of {{y}}'),
-        'showOneItem' => __('Showing 1 media file'),
-        'showNoItem' => __('No media files'),
+        'item' => __('internet media'),
+        'items' => __('internet medias'),
+        'showNbItems' => __('Showing {{x}} internet medias out of {{y}}'),
+        'showOneItem' => __('Showing 1 internet media'),
+        'showNoItem' => __('No internet medias'),
         // Note to translator: This is the action that clears the 'Search' field
-        'showAll' => __('Show all media files'),
+        'showAll' => __('Show all internet medias'),
 
         'Pick' => __('Pick'),
     ),
