@@ -13,12 +13,6 @@ namespace Novius\OnlineMediaFiles;
 class Driver_Soundcloud extends Driver_Oembed {
 
 	public function compatible() {
-		if (!$this->cleanUrl()) {
-			return false;
-		}
-		if ($this->host() == 'soundcloud.com') {
-			return parent::compatible();
-		}
-		return false;
+        return ($this->host(false) == 'soundcloud.com' && parent::compatible());
 	}
 }

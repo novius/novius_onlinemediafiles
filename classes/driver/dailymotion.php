@@ -88,7 +88,7 @@ class Driver_Dailymotion extends Driver {
         if (!$from_cache || empty($this->identifier)) {
             $this->identifier = false;
             // Extract the identifier by host
-            $parts = self::parseUrl($this->url());
+            $parts = static::parseUrl($this->url());
             switch ($parts['host']) {
                 // Standard pattern
                 case 'www.dailymotion.com':

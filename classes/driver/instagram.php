@@ -13,12 +13,23 @@ namespace Novius\OnlineMediaFiles;
 class Driver_Instagram extends Driver_Oembed {
 
 	public function compatible() {
-		if (!$this->cleanUrl()) {
-			return false;
-		}
-		if ($this->host() == 'instagram.com') {
-			return parent::compatible();
-		}
-		return false;
+        return ($this->host(false) == 'instagram.com' && parent::compatible());
 	}
+
+    /**
+     * Fetch the online media attributes (title, description, metadatas...)
+     *
+     * @return bool|mixed
+     */
+    public function fetch() {
+        if (!parent::fetch()) {
+            return false;
+        }
+        // Set thumbnail
+        $metadatas = $this->metadatas();
+        if ($thumbnail = \Arr::get($metadatas, 'url')) {
+            $this->attribute('thumbnail', $thumbnail);
+        }
+        return $this->attributes();
+    }
 }

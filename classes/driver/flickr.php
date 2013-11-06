@@ -13,13 +13,7 @@ namespace Novius\OnlineMediaFiles;
 class Driver_Flickr extends Driver_Oembed {
 
 	public function compatible() {
-		if (!$this->cleanUrl()) {
-			return false;
-		}
-		if ($this->host() == 'flickr.com') {
-			return parent::compatible();
-		}
-		return false;
+		return ($this->host(false) == 'flickr.com' && parent::compatible());
 	}
 
 	/**
@@ -28,13 +22,11 @@ class Driver_Flickr extends Driver_Oembed {
 	 * @return bool|mixed
 	 */
 	public function fetch() {
-		if (!$this->cleanUrl()) {
-			return false;
-		}
-
-		parent::fetch();
-
-		$this->attribute('thumbnail', preg_replace('`_s\.([a-z]+)$`i', '_b.$1', $this->attribute('thumbnail')));
-		return $this->attributes();
+		if (!parent::fetch()) {
+            return false;
+        }
+        // Replace small thumbnail with big thumbnail
+        $this->attribute('thumbnail', preg_replace('`_s\.([a-z]+)$`i', '_b.$1', $this->attribute('thumbnail')));
+        return $this->attributes();
 	}
 }

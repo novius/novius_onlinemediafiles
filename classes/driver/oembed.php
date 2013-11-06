@@ -21,7 +21,9 @@ class Driver_Oembed extends Driver {
 
 		// Build the API url
 		$api_url = $this->apiUrl(array(
-			'url' => $this->cleanUrl()
+            'parameters' => array(
+			    'url' => $this->cleanUrl()
+            )
 		));
 
 		// Check if oembed is compatible on this host
@@ -52,9 +54,11 @@ class Driver_Oembed extends Driver {
 		}
 
 		// Build the API url
-		$api_url = $this->apiUrl(array(
-			'url' => $this->cleanUrl(),
-		));
+        $api_url = $this->apiUrl(array(
+            'parameters' => array(
+                'url' => $this->cleanUrl()
+            )
+        ));
 
 		// Check if the API is up
 		if (!static::ping($api_url)) {
@@ -76,13 +80,23 @@ class Driver_Oembed extends Driver {
 		);
 
 		return $this->attributes($attributes);
-}
+    }
 
-	public function apiUrl($attributes = array()) {
-		$attributes = \Arr::merge(array(
-			'format'	=> 'json',
-		), $attributes);
-		$parts = self::parseUrl($this->cleanUrl());
-		return $parts['scheme'].'://'.$parts['host'].'/services/oembed?'.http_build_query($attributes, null, '&');
+	public function apiUrl($options = array()) {
+        $options = \Arr::merge((array) \Arr::get($this->config, 'api'), $options);
+
+        // Build scheme and host
+        $parts = static::parseUrl(\Arr::get($options, 'url', $this->cleanUrl()));
+		$url  = \Arr::get($options, 'scheme', $parts['scheme']).'://';
+        $url .= \Arr::get($options, 'host', $parts['host']);
+
+        // Add path
+        $url .= \Arr::get($options, 'path');
+
+        // Add GET parameters
+        $parameters = (array) \Arr::get($options, 'parameters');
+        $url .= '?'.http_build_query((array) $parameters, null, '&');
+
+        return $url;
 	}
 }

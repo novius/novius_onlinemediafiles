@@ -291,11 +291,19 @@ abstract class Driver {
 	/**
 	 * Return the host
 	 *
+     * @param bool $with_subdomain
 	 * @return mixed
 	 */
-	public function host() {
-		$parts = self::parseUrl($this->url());
-		return $parts['host'];
+    public function host($with_subdomain = true) {
+        if ($this->url()) {
+            $host = self::parseUrl($this->url(), PHP_URL_HOST);
+            if (!$with_subdomain) {
+                // Remove subdomains
+                $host = implode('.', array_slice(explode('.', $host), -2));
+            }
+            return $host;
+        }
+        return false;
 	}
 
 	/**

@@ -5,4 +5,8 @@ return array(
 	'icon'		=> array(
 		'16' => 'soundcloud.png',
 	),
+    // Oembed api configuration
+    'api'       => array(
+        'path'      => '/oembed',
+    ),
 );
