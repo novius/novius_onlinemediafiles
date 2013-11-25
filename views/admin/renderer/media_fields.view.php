@@ -1,5 +1,5 @@
 <?php \Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common')); ?>
-<div class="onlinemediafiles_renderer onlinemediafiles_renderer_<?= ($options['multiple'] ? 'multiple' : 'single') ?>">
+<div id="<?= $id ?>" class="onlinemediafiles_renderer onlinemediafiles_renderer_<?= ($options['multiple'] ? 'multiple' : 'single') ?>">
     <?
     // Print the fields
     echo implode(' ', $fields);

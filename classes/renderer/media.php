@@ -65,6 +65,8 @@ class Renderer_Media extends \Fieldset_Field
         // Generate a field for each values
         $index = 0;
         $template_id = false;
+        //id used for applying JS on every created field
+        $uniqid = uniqid('renderer_onlinemedia_');
         $fields = array();
         foreach ($values as $value) {
 
@@ -78,7 +80,7 @@ class Renderer_Media extends \Fieldset_Field
             $this->set_attribute('id', '');
             $this->set_value($value, false);
             parent::build();
-            $this->fieldset()->append(static::js_init());
+            $this->fieldset()->append(static::js_init($uniqid));
 
             // Set the field ID
             if (!$template_id) {
@@ -110,6 +112,7 @@ class Renderer_Media extends \Fieldset_Field
         return (string) \View::forge('novius_onlinemediafiles::admin/renderer/media_fields', array(
             'options'   => \Arr::merge($this->options, array('multiple' => $is_multiple)),
             'fields'    => $fields,
+            'id'        => $uniqid
         ), false);
     }
 
@@ -166,11 +169,13 @@ class Renderer_Media extends \Fieldset_Field
                 break;
             }
         }
-
+        //used for applying JS on every created field
+        $uniqid = uniqid('renderer_onlinemedia_');
         return \View::forge('novius_onlinemediafiles::admin/renderer/media_fields', array(
             'options'   => $renderer_options,
             'fields'    => $fields,
-        ), false) . static::js_init() . static::css_init();
+            'id'        => $uniqid,
+        ), false) . static::js_init($uniqid) . static::css_init();
     }
 
     /**
@@ -290,9 +295,11 @@ class Renderer_Media extends \Fieldset_Field
      * @param  bool|integer  HTML ID attribute of the <input> tag
      * @return string JavaScript to initialise the renderers
      */
-    protected static function js_init()
+    protected static function js_init($id)
     {
-        return \View::forge('novius_onlinemediafiles::admin/renderer/media_js', array(), false);
+        return \View::forge('novius_onlinemediafiles::admin/renderer/media_js', array(
+            'id' => $id,
+        ), false);
     }
 
     /**
