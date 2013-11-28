@@ -9,7 +9,7 @@
 }
 .onlinemediafiles_renderer .add_another {
     float: left;
-    margin: 0 10px 10px 0;
+    margin: 10px 10px 0 0;
     width: 60px;
     height: 60px;
     line-height: 60px;
