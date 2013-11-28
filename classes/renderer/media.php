@@ -68,6 +68,9 @@ class Renderer_Media extends \Fieldset_Field
         //id used for applying JS on every created field
         $uniqid = uniqid('renderer_onlinemedia_');
         $fields = array();
+        //template will be stored to apply it on all fields, not only the input
+        $template = $this->template;
+        $this->template = '<div style="padding: 10px">{field}</div>';
         foreach ($values as $value) {
 
             // Add brackets at the end of the input name if multiple
@@ -101,7 +104,7 @@ class Renderer_Media extends \Fieldset_Field
 
             // Generate the field
             $fields[] = \View::forge('novius_onlinemediafiles::admin/renderer/media_field', array(
-                'field' => (string) parent::build(),
+                'field' => parent::build(),
             ), false);
 
             // Stop at first value if not multiple
@@ -109,11 +112,12 @@ class Renderer_Media extends \Fieldset_Field
                 break;
             }
         }
-        return (string) \View::forge('novius_onlinemediafiles::admin/renderer/media_fields', array(
+        $this->template = $template;
+        return $this->template(\View::forge('novius_onlinemediafiles::admin/renderer/media_fields', array(
             'options'   => \Arr::merge($this->options, array('multiple' => $is_multiple)),
             'fields'    => $fields,
             'id'        => $uniqid
-        ), false);
+        ), false));
     }
 
     /**

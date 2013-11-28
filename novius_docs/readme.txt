@@ -67,3 +67,9 @@ L'application propose un renderer (Renderer_Media) pour associer un ou plusieurs
         array(
             'multiple'  => true,
         )
+
+=======================================================================================================================
+TODO :
+=======================================================================================================================
+
+Charger le CSS via un require comme pour le JS et le faire prefixer par link!

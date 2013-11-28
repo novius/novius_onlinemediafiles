@@ -2,7 +2,6 @@
 .onlinemediafiles_renderer {
     float: none;
     clear: both;
-    padding: 20px;
 }
 .onlinemediafiles_renderer .add_field {
     float: left;
