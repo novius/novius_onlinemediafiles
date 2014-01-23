@@ -69,18 +69,18 @@ class Driver_Example extends Driver {
 Available drivers are set in the configuration file `novius_onlinemediafiles/config/config.php` :
 
 ```php
-    /*
-     * Available drivers
-     */
-    'drivers' => array(
-        'Youtube',
-        'Dailymotion',
-        'Vimeo',
-	    'Soundcloud',
-		'Flickr',
-		    'Instagram',
-			'Oembed',
-    ),
+/*
+* Available drivers
+*/
+'drivers' => array(
+    'Youtube',
+    'Dailymotion',
+    'Vimeo',
+    'Soundcloud',
+    'Flickr',
+    'Instagram',
+    'Oembed',
+),
 ```
 
 ### Create a driver
