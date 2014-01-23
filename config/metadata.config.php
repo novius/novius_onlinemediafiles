@@ -1,4 +1,13 @@
 <?php
+/**
+ * NOVIUS
+ *
+ * @copyright  2014 Novius
+ * @license    GNU Affero General Public License v3 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0.html
+ * @link http://www.novius.com
+ */
+
 return array(
     'name'    => __('Médias d\'internet'),
     'version' => 'beta',
@@ -16,7 +25,7 @@ return array(
     'namespace' => 'Novius\OnlineMediaFiles',
     'launchers' => array(
 		'novius_onlinemediafiles' => array(
-            'name'    => 'Médias d\'Internet',
+            'name'    => 'Online media',
             'action' => array(
                 'action' => 'nosTabs',
                 'tab' => array(
@@ -27,8 +36,8 @@ return array(
     ),
     'enhancers' => array(
         'novius_onlinemediafiles_display' => array(
-            'title'     => 'Nouveau média internet',
-            'desc'      => '',
+            'title'     => 'Online media',
+            'desc'      => 'Display an embedded online media file',
             'id'        => 'onlinemediafiles',
             'previewUrl' => 'admin/novius_onlinemediafiles/enhancer/preview',
             'enhancer'  => 'novius_onlinemediafiles/front/show',

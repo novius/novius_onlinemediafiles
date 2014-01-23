@@ -1,14 +1,26 @@
 <?php
+/**
+ * NOVIUS
+ *
+ * @copyright  2014 Novius
+ * @license    GNU Affero General Public License v3 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0.html
+ * @link http://www.novius.com
+ */
+
+\Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common'));
+
 $wrapper_button_id = uniqid('wrapper_button_');
 $btn_synchro_id = uniqid('btn_synchro_');
-
 ?>
 <script type="text/javascript">
-    require(['jquery-nos', 'static/apps/novius_onlinemediafiles/js/admin/sync_video.js'], function ($, callback_fn) {
-        $(function () {
-            callback_fn.call($('#<?= $wrapper_button_id ?>'), $('#<?= $btn_synchro_id ?>'), <?= intval($item->onme_id) ?>, '<?= $fieldset->form()->get_attribute('id') ?>');
-        });
-    });
+    require(['jquery-nos', 'static/apps/novius_onlinemediafiles/js/admin/sync_video.js'],
+        function ($, callback_fn) {
+            $(function () {
+                callback_fn.call($('#<?= $wrapper_button_id ?>'), $('#<?= $btn_synchro_id ?>'), <?= intval($item->onme_id) ?>, '<?= $fieldset->form()->get_attribute('id') ?>');
+            });
+        }
+    );
 </script>
 <style type="text/css">
 .wrap_preview .nothing {
@@ -75,5 +87,5 @@ $btn_synchro_id = uniqid('btn_synchro_');
 }
 </style>
 <div id="<?= $wrapper_button_id ?>">
-    <button id="<?= $btn_synchro_id ?>" class="ui-icon-refresh primary">Synchroniser le média</button>
+    <button id="<?= $btn_synchro_id ?>" class="ui-icon-refresh primary"><?= __('Synchroniser') ?></button>
 </div>

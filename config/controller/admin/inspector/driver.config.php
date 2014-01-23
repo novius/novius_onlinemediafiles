@@ -1,4 +1,12 @@
 <?php
+/**
+ * NOVIUS
+ *
+ * @copyright  2014 Novius
+ * @license    GNU Affero General Public License v3 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0.html
+ * @link http://www.novius.com
+ */
 
 // Get the available drivers
 $config = \Config::load('novius_onlinemediafiles::config', true);
@@ -14,19 +22,18 @@ $data = array();
 foreach ($config['drivers'] as $driver_name) {
 	$driver_class = \Novius\OnlineMediaFiles\Driver::buildDriverClass($driver_name);
 
-	// Load the driver's custom config
+	// Loads the driver's custom config
 	list($application, $file) = \Config::configFile($driver_class);
-
 	$driver_config = \Config::load($application . '::' . $file, true);
-	if (!is_array($config)) {
-		$driver_config = array();
-	}
-	$driver_config = \Arr::merge($common_config, $driver_config);
+
+    // Merges with common config
+	$driver_config = \Arr::merge($common_config, (array) $driver_config);
+
 
 	$data[] = array(
 		'id' 	=> $driver_name,
-		'title' => !empty($driver_config['name']) ? $driver_config['name'] : $driver_name,
-		'icon' 	=> !empty($driver_config['icon']['16']) ? $driver_config['icon']['16'] : '',
+		'title' => \Arr::get($driver_config, 'name', $driver_name),
+		'icon' 	=> \Arr::get($driver_config, 'icon.16'),
 	);
 
 }

@@ -1,11 +1,11 @@
 <?php
 /**
- * NOVIUS OS - Web OS for digital communication
+ * NOVIUS
  *
- * @copyright  2011 Novius
+ * @copyright  2014 Novius
  * @license    GNU Affero General Public License v3 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0.html
- * @link http://www.novius-os.org
+ * @link http://www.novius.com
  */
 
 namespace Novius\OnlineMediaFiles;
@@ -14,11 +14,22 @@ class Driver_Dailymotion extends Driver {
 
 	protected $identifier       = false;
 
+    /**
+     * Checks whether the driver is compatible with the online media
+     *
+     * @return bool|mixed
+     */
     public function compatible() {
-        // Check if the driver is compatible by extracting the identifier from the url
+        // Checks whether the driver is compatible by extracting the identifier from the url
         return ($this->url() && $this->identifier(false));
     }
 
+    /**
+     * Returns the HTML code to embed the online media
+     *
+     * @param array $params
+     * @return mixed|string
+     */
     public function display($params = array()) {
 		return parent::display(\Arr::merge(array(
 			'attributes'	=> array(
@@ -71,13 +82,6 @@ class Driver_Dailymotion extends Driver {
         return $this->attributes($attributes);
     }
 
-    public function cleanUrl() {
-        if ($this->identifier()) {
-            return 'http://www.dailymotion.com/video/'.$this->identifier();
-        }
-        return $this->url();
-    }
-
     /**
      * Extract the unique identifier of the online media
      *
@@ -87,32 +91,33 @@ class Driver_Dailymotion extends Driver {
     public function identifier($from_cache = true) {
         if (!$from_cache || empty($this->identifier)) {
             $this->identifier = false;
+
             // Extract the identifier by host
             $parts = static::parseUrl($this->url());
             switch ($parts['host']) {
+
                 // Standard pattern
                 case 'www.dailymotion.com':
                 case 'dailymotion.com':
-                    // Extract ID from path
-                    $args = array_filter(explode('/', $parts['path']));
-                    // Ignore the "embed" part
-                    if (reset($args) == 'embed') {
-                        array_shift($args);
-                    }
-                    // Check the "video" part
-                    if (reset($args) == 'video') {
-                        array_shift($args);
-                        // Extract the full identifier
-                        $identifier = reset($args);
-                        if (!empty($identifier)) {
-                            // Extract only the ID
-                            $identifier = explode('_', $identifier);
-                            $this->identifier = reset($identifier);
-                        }
+                    // Try to match the video ID
+                    if (preg_match('`^(?:/embed)?/video/([^_#\?]+)`', $parts['path'], $out)) {
+                        $this->identifier = $out[1];
                     }
                     break;
             }
         }
         return $this->identifier;
+    }
+
+    /**
+     * Returns the clean URL of the online media
+     *
+     * @return bool|string
+     */
+    public function cleanUrl() {
+        if ($this->identifier()) {
+            return 'http://www.dailymotion.com/video/'.$this->identifier();
+        }
+        return $this->url();
     }
 }

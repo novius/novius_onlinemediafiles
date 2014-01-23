@@ -1,4 +1,12 @@
 <?php
+/**
+ * NOVIUS
+ *
+ * @copyright  2014 Novius
+ * @license    GNU Affero General Public License v3 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0.html
+ * @link http://www.novius.com
+ */
 
 namespace Novius\OnlineMediaFiles;
 
@@ -88,10 +96,10 @@ class Model_Media extends \Nos\Orm\Model
     protected $driver           = false;
 
     /**
-     * Construit le driver à partir du média internet
+     * Builds the driver using the item
      *
      * @param bool $force
-     * @return Driver
+     * @return bool|Driver
      */
     public function driver($force = false) {
         if ($this->driver === false || $force) {
@@ -101,49 +109,73 @@ class Model_Media extends \Nos\Orm\Model
     }
 
     /**
-     * Synchronise le média internet (trouve le bon driver et fetch les attributs)
+     * Finds a compatible driver and fetch its attributes
      *
-     * @param bool $save
+     * @param bool $save Don't save the item if false
      * @return bool
+     * @throws \Exception
      */
     public function sync($save = true) {
-        $config = \Config::load('novius_onlinemediafiles::config', true);
-
-        // Reset le driver courant
-        $this->onme_driver_name = $this->driver = false;
-
-        if (!empty($this->onme_url)) {
-            // Search through available drivers
-            foreach ($config['drivers'] as $driver_name) {
-                // Build the driver with the supplied le driver avec l'url fournie
-                if (($driver = Driver::build($driver_name, $this->onme_url))) {
-                    // Is the driver compatible ?
-                    if ($driver->compatible()) {
-                        // Save the new driver
-                        if (($attributes = $driver->fetch())) {
-                            $this->onme_driver_name = $driver_name;
-                            $this->driver = $driver;
-                            // Save attributes
-                            $this->onme_title = $attributes['title'];
-                            $this->onme_description = $attributes['description'];
-                            $this->onme_thumbnail = $attributes['thumbnail'];
-                            $this->onme_metadatas = serialize($attributes['metadatas']);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        if (!$this->driver) {
+        if (empty($this->onme_url)) {
             return false;
         }
-        return $save ? $this->save() : true;
+
+        // Loads available drivers
+        $config = \Config::load('novius_onlinemediafiles::config', true);
+        $drivers = \Arr::get($config, 'drivers');
+        if (empty($drivers)) {
+            throw new \Exception(__('No driver available'));
+        }
+
+        // Search through available drivers
+        foreach ($drivers as $driver_name) {
+
+            // Builds the driver with the supplied url
+            $driver = Driver::build($driver_name, $this->onme_url);
+
+            // Checks whether the driver is compatible
+            if (empty($driver) || !$driver->compatible()) {
+                continue;
+            }
+
+            // Extrait les attributs du média internet (titre, description...)
+            $attributes = $driver->fetch();
+            if (empty($attributes)) {
+                throw new \Exception(__('Online media not found, please check the URL'));
+            }
+
+            // Set new driver
+            $this->driver = $driver;
+
+            // Set new attributes
+            $this->onme_driver_name = $driver_name;
+            $this->onme_title       = \Arr::get($attributes, 'title');
+            $this->onme_description = \Arr::get($attributes, 'description');
+            $this->onme_thumbnail   = \Arr::get($attributes, 'thumbnail');
+            $this->onme_metadatas   = serialize(\Arr::get($attributes, 'metadatas'));
+
+            return $save ? $this->save() : true;
+        }
+
+        // No driver found
+        return false;
     }
 
+    /**
+     * Returns the online media thumbnail URL
+     *
+     * @return mixed
+     */
     public function thumbnail() {
         return $this->driver()->thumbnail();
     }
 
+    /**
+     * Returns the HTML code to display the online media
+     *
+     * @param array $params
+     * @return mixed|string
+     */
     public function display($params = array()) {
         return $this->driver()->display($params);
     }

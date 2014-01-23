@@ -1,11 +1,11 @@
 <?php
 /**
- * NOVIUS OS - Web OS for digital communication
+ * NOVIUS
  *
- * @copyright  2011 Novius
+ * @copyright  2014 Novius
  * @license    GNU Affero General Public License v3 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0.html
- * @link http://www.novius-os.org
+ * @link http://www.novius.com
  */
 
 namespace Novius\OnlineMediaFiles;
@@ -280,9 +280,9 @@ abstract class Driver {
     }
 
     /**
-     * Return the clean url of the online media
+     * Returns the clean URL of the online media
      *
-     * @return bool
+     * @return bool|string
      */
     public function cleanUrl() {
         return $this->url();
@@ -343,12 +343,13 @@ abstract class Driver {
     }
 
 	/**
-	 * Show the online media
+	 * Display the embedded online media
 	 *
 	 * @param array $params
 	 * @return mixed|string
 	 */
 	public function display($params = array()) {
+        // Default params
 		$params = \Arr::merge(array(
 			'template'		=> '{display}',
 			'attributes'	=> array(
@@ -359,12 +360,15 @@ abstract class Driver {
 			)
 		), $params);
 
+        // Filter null attributes
 		$attributes = \Arr::filter_recursive($params['attributes'], function($value) {
 			return ($value !== null);
 		});
 
+        // Builds the iframe
 		$display = '<iframe'.(!empty($attributes) ? ' '.array_to_attr($attributes) : '').'></iframe>';
 		$display = str_replace('{display}', $display, $params['template']);
+
 		return $display;
 	}
 

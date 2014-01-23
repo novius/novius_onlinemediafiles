@@ -1,11 +1,11 @@
 <?php
 /**
- * NOVIUS OS - Web OS for digital communication
+ * NOVIUS
  *
- * @copyright  2011 Novius
+ * @copyright  2014 Novius
  * @license    GNU Affero General Public License v3 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0.html
- * @link http://www.novius-os.org
+ * @link http://www.novius.com
  */
 
 namespace Novius\OnlineMediaFiles;
@@ -14,6 +14,11 @@ class Driver_Oembed extends Driver {
 
 	protected $checked		= array();
 
+    /**
+     * Checks whether the driver is compatible with the online media
+     *
+     * @return bool|mixed
+     */
     public function compatible() {
 		if (!$this->cleanUrl()) {
 			return false;
@@ -33,6 +38,12 @@ class Driver_Oembed extends Driver {
 		return $this->checked[$api_url];
     }
 
+    /**
+     * Returns the HTML code to embed the online media
+     *
+     * @param array $params
+     * @return mixed|string
+     */
     public function display($params = array()) {
 		$params = \Arr::merge(array(
 			'template'	=> '{display}',
@@ -82,7 +93,13 @@ class Driver_Oembed extends Driver {
 		return $this->attributes($attributes);
     }
 
-	public function apiUrl($options = array()) {
+    /**
+     * Builds and returns the oEmbed API url
+     *
+     * @param array $options
+     * @return string
+     */
+    public function apiUrl($options = array()) {
         $options = \Arr::merge((array) \Arr::get($this->config, 'api'), $options);
 
         // Build scheme and host
@@ -91,7 +108,7 @@ class Driver_Oembed extends Driver {
         $url .= \Arr::get($options, 'host', $parts['host']);
 
         // Add path
-        $url .= \Arr::get($options, 'path');
+        $url .= $this->apiPath(\Arr::get($this->config, 'path'));
 
         // Add GET parameters
         $parameters = (array) \Arr::get($options, 'parameters');
@@ -99,4 +116,22 @@ class Driver_Oembed extends Driver {
 
         return $url;
 	}
+
+    /**
+     * Returns the path to the oEmbed API
+     *
+     * @param null $default_path
+     * @return mixed|null
+     */
+    public function apiPath($default_path = null) {
+        // Try to match a custom API path by host
+        $paths = array_filter((array) \Arr::get($this->config, 'path_mapping'));
+        foreach ($paths as $host => $path) {
+            if ($host == $this->host()) {
+                return $path;
+            }
+        }
+        // Returns default path
+        return $default_path ? $default_path : \Arr::get($this->config, 'api.path');
+    }
 }

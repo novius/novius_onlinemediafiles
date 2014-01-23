@@ -1,17 +1,15 @@
 <?php
+/**
+ * NOVIUS
+ *
+ * @copyright  2014 Novius
+ * @license    GNU Affero General Public License v3 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0.html
+ * @link http://www.novius.com
+ */
 
 namespace Novius\OnlineMediaFiles;
 
 class Controller_Admin_Folder extends \Nos\Controller_Admin_Crud
 {
-//    protected function init_item()
-//    {
-//        parent::init_item();
-//        if (empty($this->item_environment)) {
-//            $query = Model_Folder::find();
-//            $query->where(array('medif_parent_id' => null));
-//            $root = $query->get_one();
-//            $this->item->medif_parent_id = $root->medif_id;
-//        }
-//    }
 }

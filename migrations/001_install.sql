@@ -1,13 +1,13 @@
 /**
- * NOVIUS OS - Web OS for digital communication
+ * NOVIUS
  *
- * @copyright  2011 Novius
+ * @copyright  2014 Novius
  * @license    GNU Affero General Public License v3 or (at your option) any later version
  *             http://www.gnu.org/licenses/agpl-3.0.html
- * @link http://www.novius-os.org
+ * @link http://www.novius.com
  */
  
-CREATE TABLE IF NOT EXISTS `onlinemediafiles` (
+CREATE TABLE IF NOT EXISTS `novius_onlinemediafiles` (
   `onme_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `onme_folder_id` int(10) unsigned NOT NULL,
   `onme_title` varchar(255) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `onlinemediafiles` (
   KEY `onme_folder_id` (`onme_folder_id`)
 ) DEFAULT CHARSET=utf8 ;
 
-CREATE TABLE IF NOT EXISTS `onlinemediafiles_folder` (
+CREATE TABLE IF NOT EXISTS `novius_onlinemediafiles_folder` (
   `onfo_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `onfo_parent_id` int(10) unsigned DEFAULT NULL,
   `onfo_title` varchar(100) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `onlinemediafiles_folder` (
   KEY `onfo_parent_id` (`onfo_parent_id`)
 ) DEFAULT CHARSET=utf8 ;
 
-CREATE TABLE IF NOT EXISTS `onlinemediafiles_link` (
+CREATE TABLE IF NOT EXISTS `novius_onlinemediafiles_link` (
   `onli_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `onli_from_table` varchar(255) NOT NULL,
   `onli_foreign_id` int(10) unsigned NOT NULL,

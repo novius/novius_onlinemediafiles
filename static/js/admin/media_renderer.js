@@ -1,3 +1,12 @@
+/**
+ * NOVIUS
+ *
+ * @copyright  2014 Novius
+ * @license    GNU Affero General Public License v3 or (at your option) any later version
+ *             http://www.gnu.org/licenses/agpl-3.0.html
+ * @link http://www.novius.com
+ */
+
 define([
     'jquery-nos',
     'static/novius-os/admin/vendor/jquery/jquery-ui-input-file-thumb/js/jquery.input-file-thumb',
@@ -9,44 +18,55 @@ define([
 
             var $skeleton = false;
 
+            // Initializes inputs
             $context.find('input.onlinemediafile_input').each(function() {
                 initialize_input($(this));
             });
 
+            // Adds another online media
             $context.find('.add_another').each(function() {
                 var $this = $(this);
-                if (!$this.data('add-offset')) {
-                    $this.data('add-offset', 1);
-                    $this.on('click', function(e) {
-                        e.preventDefault();
-                        var $first = $this.closest('.onlinemediafiles_renderer').find('.add_field:first');
-                        var $clone = $skeleton.clone();
-                        var $input = $clone.find('input.onlinemediafile_input').val('');
 
-                        // Reset le squelette
-                        var media_options = $input.data('media-options') || $input.attr('data-media-options') || {};
-                        if (typeof media_options.inputFileThumb != 'object') {
-                            media_options.inputFileThumb = {};
-                        }
-                        media_options.inputFileThumb.file = '';
-                        media_options.inputFileThumb.title = '';
-                        $input.data('media-options', media_options);
-
-                        // Generate a new ID
-                        var offset = $this.data('add-offset');
-                        $this.data('add-offset', offset + 1);
-                        $input.attr('id', $first.find('input.onlinemediafile_input').attr('id')+'_'+offset);
-
-                        $this.before($clone);
-                        initialize_input($input);
-                    });
-                    $this.data('initialized', true);
+                // Already initialized ?
+                if ($this.data('initialized')) {
+                    return ;
                 }
+
+                // Initializes the offset
+                $this.data('add-offset', 1);
+
+                // Binds click
+                $this.on('click', function(e) {
+                    e.preventDefault();
+                    var $clone = $skeleton.clone();
+                    var $input = $clone.find('input.onlinemediafile_input').val('');
+
+                    // Reset the skeleton
+                    var media_options = $input.data('media-options') || $input.attr('data-media-options') || {};
+                    if (typeof media_options.inputFileThumb != 'object') {
+                        media_options.inputFileThumb = {};
+                    }
+                    media_options.inputFileThumb.file = '';
+                    media_options.inputFileThumb.title = '';
+                    $input.data('media-options', media_options);
+
+                    // Generate a new ID
+                    var offset = $this.data('add-offset');
+                    var $first = $this.closest('.onlinemediafiles_renderer').find('.add_field:first input.onlinemediafile_input');
+                    $input.attr('id', $first.attr('id')+'_'+offset);
+                    $this.data('add-offset', offset + 1);
+
+                    $this.before($clone);
+                    initialize_input($input);
+                });
+                $this.data('initialized', true);
             });
 
+            // Initializes an online media input
             function initialize_input($input) {
+
+                // Creates the skeleton
                 if (!$skeleton) {
-                    // Create the skeleton
                     $skeleton = $input.closest('.add_field').clone().attr('id', false);
                 }
 
