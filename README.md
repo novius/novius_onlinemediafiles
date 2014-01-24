@@ -22,7 +22,7 @@ The Online Media File application runs on Novius OS Chiba 2 and upper.
 
 # Documentation
 
-After you installed this application in your Novius OS, you will be able to manage online media files and display them on your front pages using an enhancer and attach them on a model
+After you installed this application in your Novius OS, you will be able to manage online media files using an appdesk, display them in a wysiwyg with an enhancer, attach them on a model with a renderer and display them in the frontend.
 
 ## Driver
 
@@ -69,18 +69,18 @@ class Driver_Example extends Driver {
 Available drivers are set in the configuration file `novius_onlinemediafiles/config/config.php` :
 
 ```php
-    /*
-     * Available drivers
-     */
-    'drivers' => array(
-        'Youtube',
-        'Dailymotion',
-        'Vimeo',
-	    'Soundcloud',
-		'Flickr',
-		    'Instagram',
-			'Oembed',
-    ),
+/*
+* Available drivers
+*/
+'drivers' => array(
+    'Youtube',
+    'Dailymotion',
+    'Vimeo',
+    'Soundcloud',
+    'Flickr',
+    'Instagram',
+    'Oembed',
+),
 ```
 
 ### Create a driver
