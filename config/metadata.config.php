@@ -10,14 +10,16 @@
 
 return array(
     'name'    => __('Médias d\'internet'),
-    'version' => 'beta',
+    'version' => '4.0.0.0',
     'icons' => array(
         64 => 'static/apps/novius_onlinemediafiles/img/64-icon.png',
         32 => 'static/apps/novius_onlinemediafiles/img/32-icon.png',
         16 => 'static/apps/novius_onlinemediafiles/img/16-icon.png',
     ),
-    'permission' => array(
+    'requires' => array(
+        'lib_renderers',
     ),
+    'permission' => array(),
     'provider' => array(
         'name' => 'Novius',
     ),

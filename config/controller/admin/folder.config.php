@@ -67,7 +67,7 @@ return array(
 //        ),
         'onfo_parent_id' => array(
             'label' => __('Parent'),
-            'renderer' => '\Lib\Renderers\Renderer_Categories',
+            'renderer' => '\Novius\Renderers\Renderer_Categories',
             'renderer_options' => array(
                 'width' => '250px',
                 'height' => '250px',

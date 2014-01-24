@@ -90,7 +90,7 @@ return array(
         'onme_folder_id' => array(
             'label' => __('Folder'),
             'validation' => array('required'),
-            'renderer' => '\Lib\Renderers\Renderer_Categories',
+            'renderer' => '\Novius\Renderers\Renderer_Categories',
             'renderer_options' => array(
                 'width' => '250px',
                 'height' => '250px',
