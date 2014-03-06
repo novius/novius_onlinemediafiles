@@ -17,7 +17,7 @@ return array(
         16 => 'static/apps/novius_onlinemediafiles/img/16-icon.png',
     ),
     'requires' => array(
-        'lib_renderers',
+        'novius_renderers',
     ),
     'permission' => array(),
     'provider' => array(
