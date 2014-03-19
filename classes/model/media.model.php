@@ -12,7 +12,7 @@ namespace Novius\OnlineMediaFiles;
 
 class Model_Media extends \Nos\Orm\Model
 {
-    protected static $_table_name = 'onlinemediafiles';
+    protected static $_table_name = 'novius_onlinemediafiles';
     protected static $_primary_key = array('onme_id');
 
     protected static $_title_property = 'onme_title';

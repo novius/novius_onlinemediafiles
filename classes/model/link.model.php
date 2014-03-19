@@ -12,7 +12,7 @@ namespace Novius\OnlineMediaFiles;
 
 class Model_Link extends \Nos\Orm\Model
 {
-    protected static $_table_name = 'onlinemediafiles_link';
+    protected static $_table_name = 'novius_onlinemediafiles_link';
     protected static $_primary_key = array('onli_id');
 
     protected static $_properties = array(
