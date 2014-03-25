@@ -14,7 +14,7 @@ class Controller_Admin_Media extends \Nos\Controller_Admin_Crud
 {
     public function before_save($item, $data) {
         // Resync the online media file if needed
-        if (\Input::post('resync')) {
+        if (\Input::post('resync') || empty($data['onme_driver_name'])) {
             if (!$item->sync(false)) {
                 $this->send_error(new \Exception(__('La synchronisation du média a échoué !')));
             }

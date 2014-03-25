@@ -25,12 +25,21 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
             ));
 
             // Finds a compatible driver and synchronizes attributes
-            if (!$test_item->sync(false)) {
+            if (!$test_item->sync(false) || !$test_item->driver()) {
                 throw new \Exception(__('This online media is not recognized'));
             }
 
             // Returns the fetched attributes
-            \Response::json($test_item->driver()->attributes());
+            \Response::json(
+                \Arr::merge(
+                    $test_item->driver()->attributes(),
+                    array(
+                        'driver_name'   => $test_item->driver()->driverName(),
+                        'display'       => $test_item->driver()->display(),
+                        'preview'       => $test_item->driver()->preview(),
+                    )
+                )
+            );
         }
 
         // Gestion des erreurs

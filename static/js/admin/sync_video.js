@@ -27,7 +27,7 @@ define(
             var last_sync_url = last_url;
 
             // Set the "resync" hidden field
-            var $resync = $('<input type="hidden" name="resync" value="1" />').appendTo($url.parent());
+            var $resync = $('<input type="hidden" name="resync" value="1" />').prependTo($url.closest('form'));
             if (last_url) {
                 $resync.val(0);
             }
@@ -58,14 +58,6 @@ define(
                 }
                 last_url = $url.val();
             }).trigger('focus');
-
-            // Sync on save
-            $form.closest('.nos-toolbar-parent').find('.nos-toolbar input[name="save"], .nos-toolbar input[type="submit"]').on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                return false;
-            });
 
             // Sync button
             $btn_synchro.on('click', function(e) {
