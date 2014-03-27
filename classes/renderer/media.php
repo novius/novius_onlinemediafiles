@@ -70,7 +70,7 @@ class Renderer_Media extends \Fieldset_Field
         $fields = array();
         //template will be stored to apply it on all fields, not only the input
         $template = $this->template;
-        $this->template = '<div style="padding: 10px">{field}</div>';
+        $this->template = !empty($this->options['field_template']) ? $this->options['field_template'] : '<div style="padding: 10px">{field}</div>';
         foreach ($values as $value) {
 
             // Add brackets at the end of the input name if multiple
@@ -165,7 +165,7 @@ class Renderer_Media extends \Fieldset_Field
             // Generate the field
             $fields[] = \View::forge('novius_onlinemediafiles::admin/renderer/media_field', array(
                 'field'     => $field,
-                'template'  => '<div style="padding: 10px">{field}</div>'
+                'template'  => !empty($renderer_options['field_template']) ? $renderer_options['field_template'] : '<div style="padding: 10px">{field}</div>'
             ), false);
 
             // Stop at first value if not multiple
@@ -229,7 +229,7 @@ class Renderer_Media extends \Fieldset_Field
 
     /**
      * Parse the renderer array to get attributes and the renderer options
-	 *
+     *
      * @param  array $renderer
      * @return array 0: attributes, 1: renderer options
      */
@@ -269,11 +269,11 @@ class Renderer_Media extends \Fieldset_Field
 
     /**
      * Hydrate the options array to fill in the media URL for the specified value
-	 *
-	 * @param $options
-	 * @param array $attributes
+     *
+     * @param $options
+     * @param array $attributes
      */
-	protected static function hydrate_options(&$options, $attributes = array())
+    protected static function hydrate_options(&$options, $attributes = array())
     {
         if (!empty($attributes['value'])) {
             $media = \Novius\OnlineMediaFiles\Model_Media::find($attributes['value']);
