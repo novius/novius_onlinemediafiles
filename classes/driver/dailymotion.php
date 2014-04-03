@@ -51,7 +51,7 @@ class Driver_Dailymotion extends Driver {
 
 		// Get the json response
 		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
-		if (empty($response) || empty($response->data)) {
+		if (empty($response)) {
 			return false;
 		}
 
