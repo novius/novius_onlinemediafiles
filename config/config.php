@@ -17,6 +17,7 @@ return array(
         'Dailymotion',
         'Vimeo',
 		'Soundcloud',
+		'Spotify',
 		'Flickr',
 		'Instagram',
 		'Oembed',

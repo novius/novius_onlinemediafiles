@@ -76,8 +76,15 @@ class Driver_Oembed extends Driver {
 			return false;
 		}
 
+        $opts = array(
+            'http' => array(
+                'user_agent'  => !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Custom',
+            )
+        );
+
+        $context  = stream_context_create($opts);
 		// Get the json response
-		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
+        $response = ($json = file_get_contents($api_url, false, $context)) ? json_decode($json) : false;
 		if (empty($response)) {
 			return false;
 		}

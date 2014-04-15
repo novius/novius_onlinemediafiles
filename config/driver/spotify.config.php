@@ -9,8 +9,14 @@
  */
 
 return array(
-	'name'		=> __('vidéo Viméo'),
+	'name'		=> __('Spotify'),
 	'icon'		=> array(
-		'16' => 'static/apps/novius_onlinemediafiles/icons/16/vimeo.png',
+		'16' => 'spotify.png',
 	),
+    // Oembed api configuration
+    'api'       => array(
+        'scheme'    => 'https',
+        'path'      => '/oembed/',
+        'host'      => 'embed.spotify.com'
+    ),
 );
