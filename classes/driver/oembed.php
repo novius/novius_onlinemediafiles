@@ -79,6 +79,7 @@ class Driver_Oembed extends Driver {
         $opts = array(
             'http' => array(
                 'user_agent'  => !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Custom',
+                'timeout' => 10,
             )
         );
 
