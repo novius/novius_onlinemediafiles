@@ -203,6 +203,8 @@ class Renderer_Media extends \Fieldset_Field
             // Clear the current linked videos
             $item->{$relation_name} = array();
 
+            //Initialize the array to prevent test on an undefined variable
+            $media_ids = array();
             // Get the new linked videos
             foreach ($data[$relation_name] as $media_id) {
                 if (ctype_digit($media_id) ) {
