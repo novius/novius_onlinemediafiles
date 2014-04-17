@@ -41,7 +41,7 @@ class Renderer_Media extends \Fieldset_Field
         $class = get_class($item);
         $relation = $class::relations($field_name);
         $attributes = $class::properties();
-        $field_found = !empty($relation) || in_array($field_name, $attributes);
+        $field_found = !empty($relation) || isset($attributes[$field_name]);
         if (!$field_found) {
             throw new \Exception('Field or relation `'.$field_name.'` cannot be found in '.get_class($item));
         }
