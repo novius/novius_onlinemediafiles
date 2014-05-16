@@ -151,7 +151,7 @@ ALTER TABLE  `model` ADD `model_onme_id` INT( 11 ) NULL DEFAULT NULL;
 Add a belongs_to relation on your model :
 ```php
 protected static $_belongs_to = array(
-    'media' => array(
+    'online_media' => array(
         'key_from'       => 'model_onme_id',
         'model_to'       => 'Novius\OnlineMediaFiles\Model_Media',
         'key_to'         => 'onme_id',
@@ -181,7 +181,7 @@ Add the renderer in the CRUD configuration file :
 Add a many_many relation on your model :
 ```php
 protected static $_many_many = array(
-    'medias' => array( // key must be defined, relation will be loaded via $blocmagique->key
+    'online_medias' => array( // key must be defined, relation will be loaded via $blocmagique->key
         'table_through'     => 'model_onlinemedias',
         'key_from'          => 'model_id',
         'key_through_from'  => 'moom_model_id'
@@ -262,7 +262,7 @@ Example of static renderer :
 
 ```php
 \Novius\OnlineMediaFiles\Renderer_Media::renderer(array(
-    'name'      => 'online_media',
+    'name'      => 'online_medias',
     'multiple'  => true,
     'values'    => array(1),
     'template'  => '<div>{field}</div>',
