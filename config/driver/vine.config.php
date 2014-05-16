@@ -11,6 +11,6 @@
 return array(
 	'name'		=> __('Vine'),
 	'icon'		=> array(
-		'16' => 'youtube.jpg',
+		'16' => 'vine.png',
 	),
 );
