@@ -9,18 +9,8 @@
  */
 
 return array(
-    /*
-     * Available drivers
-     */
-    'drivers' => array(
-        'Youtube',
-        'Dailymotion',
-        'Vimeo',
-        'Soundcloud',
-        'Spotify',
-        'Flickr',
-        'Instagram',
-        'Vine',
-        'Oembed',
-    ),
+	'name'		=> __('Vine'),
+	'icon'		=> array(
+		'16' => 'vine.png',
+	),
 );

@@ -38,7 +38,11 @@ class Renderer_Media extends \Fieldset_Field
 
         $item = $this->fieldset()->getInstance();
         $field_name = $this->name;
-        if (!isset($item->{$field_name})) {
+        $class = get_class($item);
+        $relation = $class::relations($field_name);
+        $attributes = $class::properties();
+        $field_found = !empty($relation) || isset($attributes[$field_name]);
+        if (!$field_found) {
             throw new \Exception('Field or relation `'.$field_name.'` cannot be found in '.get_class($item));
         }
 
@@ -199,6 +203,8 @@ class Renderer_Media extends \Fieldset_Field
             // Clear the current linked videos
             $item->{$relation_name} = array();
 
+            //Initialize the array to prevent test on an undefined variable
+            $media_ids = array();
             // Get the new linked videos
             foreach ($data[$relation_name] as $media_id) {
                 if (ctype_digit($media_id) ) {
