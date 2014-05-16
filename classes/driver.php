@@ -229,8 +229,19 @@ abstract class Driver {
 	 * @return bool
 	 */
 	public static function ping($url) {
-		$headers = get_headers($url, 1);
-		return strpos($headers[0], '200 OK') !== false;
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADER, true);
+        curl_setopt($curl, CURLOPT_NOBODY, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 5);
+        $data = curl_exec($curl);
+        $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if (curl_errno($curl)) {
+            $errno = curl_error($curl);
+        }
+        curl_close($curl);
+		return $code == 200;
 	}
 
 	/**
