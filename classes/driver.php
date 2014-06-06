@@ -227,22 +227,28 @@ abstract class Driver {
 	 *
 	 * @param $url
 	 * @return bool
-	 */
-	public static function ping($url) {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADER, true);
-        curl_setopt($curl, CURLOPT_NOBODY, true);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 5);
-        $data = curl_exec($curl);
-        $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if (curl_errno($curl)) {
-            $errno = curl_error($curl);
+     * @throws \Exception
+     */
+    public static function ping($url) {
+        // Ping over https is not supported if the OpenSSL module is not installed
+        if (!extension_loaded('openssl') && static::isSSL($url)) {
+            throw new \Exception(__('Your server is currently not compatible with this media. Please contact your administrator to enable SSL support.'));
         }
-        curl_close($curl);
-		return $code == 200;
+
+        // Grab the headers and check the HTTP status code
+        $headers = get_headers($url, 1);
+        return strpos($headers[0], '200 OK') !== false;
 	}
+
+    /**
+     * Check if $url uses the SSL protocol
+     *
+     * @param $url
+     * @return bool
+     */
+    public static function isSSL($url) {
+        return (strtolower(substr($url, 0, 8)) == 'https://');
+    }
 
 	/**
 	 * Convert recursively ojects in array
