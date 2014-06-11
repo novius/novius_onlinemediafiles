@@ -55,13 +55,8 @@ class Driver_Youtube extends Driver {
         // Call the youtube API
         $api_url = 'http://gdata.youtube.com/feeds/api/videos/'.$this->identifier().'?v=2&alt=jsonc';
 
-		// Check if the API is up
-		if (!static::ping($api_url)) {
-			return false;
-		}
-
 		// Get the json response
-		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
+        $response = json_decode(static::get_url_content($api_url));
 		if (empty($response) || empty($response->data)) {
 			return false;
 		}

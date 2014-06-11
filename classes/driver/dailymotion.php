@@ -55,16 +55,11 @@ class Driver_Dailymotion extends Driver {
 		$fields = (!empty($this->config['api_fields']) ? '?fields='.implode(',', $this->config['api_fields']) : '');
 		$api_url = 'https://api.dailymotion.com/video/'.$this->identifier().$fields;
 
-		// Check if the API is up
-		if (!static::ping($api_url)) {
-			return false;
-		}
-
-		// Get the json response
-		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
-		if (empty($response)) {
-			return false;
-		}
+        // Get the json response
+        $response = json_decode(static::get_url_content($api_url));
+        if (empty($response)) {
+            return false;
+        }
 
         // Title is required
         if (empty($response->title)) {
