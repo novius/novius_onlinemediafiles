@@ -1,0 +1,19 @@
+Ce fichier contient des instructions pour vous aider à migrer l'application d'une ancienne version à une nouvelle.
+
+Il est impératif de lire ces instructions quand vous migrez votre application vers une nouvelle version majeure afin de
+ne pas avoir de surprises par la suite.
+
+Il est également fait mention des méthodes et usages qui devienennt obsolètes (parfois d'une mineure à une autre).
+
+=======================================================================================================================
+4.0.4.2
+=======================================================================================================================
+
+Cette version introduit une migration qui permet de passer d'une version 3.* en 4.*.
+
+La migration effectue les opérations suivante :
+    1) création des nouvelles tables prefixées par "novius" (ex. `novius_onlinemediafiles`)
+    2) migration des données depuis les anciennes tables vers les nouvelles tables
+    3) suppression des anciennes tables
+
+Si les nouvelles tables existent déjà alors aucune de ces opérations ne sera éxécutée.

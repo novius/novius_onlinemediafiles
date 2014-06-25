@@ -23,21 +23,22 @@ class C2d extends \Nos\Migration
         {
             //The first migration was executed before
             self::executeSqlFile(__DIR__.DIRECTORY_SEPARATOR.'001_install.sql');
-        }
-        if (\DBUtil::table_exists('onlinemediafiles'))
-        {
-            //We must migrate old datas into newsest table
-            $sql = 'INSERT INTO novius_onlinemediafiles SELECT * FROM onlinemediafiles;';
-            \Db::query($sql)->execute();
-            \DBUtil::drop_table('onlinemediafiles');
 
-            $sql = 'INSERT INTO novius_onlinemediafiles_folder SELECT * FROM onlinemediafiles_folder;';
-            \Db::query($sql)->execute();
-            \DBUtil::drop_table('onlinemediafiles_folder');
+            // Migrate the old data into the new table
+            if (\DBUtil::table_exists('onlinemediafiles'))
+            {
+                $sql = 'INSERT INTO novius_onlinemediafiles SELECT * FROM onlinemediafiles;';
+                \Db::query($sql)->execute();
+                \DBUtil::drop_table('onlinemediafiles');
 
-            $sql = 'INSERT INTO novius_onlinemediafiles_link SELECT * FROM onlinemediafiles_link;';
-            \Db::query($sql)->execute();
-            \DBUtil::drop_table('onlinemediafiles_link');
+                $sql = 'INSERT INTO novius_onlinemediafiles_folder SELECT * FROM onlinemediafiles_folder;';
+                \Db::query($sql)->execute();
+                \DBUtil::drop_table('onlinemediafiles_folder');
+
+                $sql = 'INSERT INTO novius_onlinemediafiles_link SELECT * FROM onlinemediafiles_link;';
+                \Db::query($sql)->execute();
+                \DBUtil::drop_table('onlinemediafiles_link');
+            }
         }
     }
 }
