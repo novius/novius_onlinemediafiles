@@ -132,16 +132,33 @@ class Renderer_Media extends \Fieldset_Field
      */
     public static function renderer($renderer = array())
     {
-        // Génère les attributs et les options à partir de la configuration du renderer
-        list($attributes, $renderer_options) = static::parse_options($renderer);
+        // Default values
+        $values = array();
+        if (isset($renderer['values'])) {
+            $values = (array) $renderer['values'];
+            unset($renderer['values']);
+        }
+        // Set an empty value by default
+        $values = array_filter($values);
+        if (!count($values)) {
+            $values = array('');
+        }
 
-        $field_name = $attributes['name'];
+        // Generate attributes and options from configuration renderer
+        list($attributes, $renderer_options) = static::parse_options($renderer);
+        $is_multiple = \Arr::get($renderer_options, 'multiple');
+
+        // Field name
+        $field_name = \Arr::get($attributes, 'name');
+        // Add brackets to the field name if multiple
+        if ($is_multiple && substr($field_name, -2) != '[]') {
+            $field_name .= '[]';
+        }
 
         // Generate a field for each values
         $index = 0;
         $fields = array();
-        $renderer['values'] = (array) $renderer['values'];
-        foreach ($renderer['values'] as $value) {
+        foreach ($values as $value) {
 
             // Generate the renderer options for this field
             $field_options = $renderer_options;
@@ -157,11 +174,7 @@ class Renderer_Media extends \Fieldset_Field
                 'data-media-options'    => htmlspecialchars(\Format::forge()->to_json($field_options)),
                 'id'                    => $attributes['id'].'_'.(++$index),
             ));
-
-            // Add brackets to the field name if multiple
-            if ($renderer_options['multiple'] && substr($field_attributes['name'], -2) != '[]') {
-                $field_attributes['name'] .= '[]';
-            }
+            \Arr::delete($field_attributes, 'name');
 
             // Build the field
             $field = \Fuel\Core\Form::input($field_name, $value, $field_attributes);
@@ -173,7 +186,7 @@ class Renderer_Media extends \Fieldset_Field
             ), false);
 
             // Stop at first value if not multiple
-            if (!$renderer['multiple']) {
+            if (!$is_multiple) {
                 break;
             }
         }
@@ -243,16 +256,13 @@ class Renderer_Media extends \Fieldset_Field
     {
         // Build attributes
         $attributes = $renderer;
-        $attributes['class'] = trim((isset($renderer['class']) ? $renderer['class'] : '').' onlinemediafile_input');
-        if (empty($attributes['id'])) {
-            $attributes['id'] = uniqid('onlinemediafile_');
-        }
-        unset($attributes['multiple']);
-        unset($attributes['values']);
-        unset($attributes['template']);
+        !empty($attributes['id']) or ($attributes['id'] = uniqid('onlinemediafile_'));
+        \Arr::set($attributes, 'class', trim(\Arr::get($renderer, 'class').' onlinemediafile_input'));
+        \Arr::delete($attributes, 'template');
+        \Arr::delete($attributes, 'renderer_options');
 
         // Build options
-        $options = array(
+        $options = \Arr::merge(array(
             'mode' => 'single',
             'inputFileThumb' => array(
                 'title' => __('Online Media'),
@@ -263,12 +273,7 @@ class Renderer_Media extends \Fieldset_Field
                     'wrongExtension' => __('This extension is not allowed.'),
                 ),
             ),
-        );
-
-        // Options du renderer
-        if (!empty($renderer['renderer_options'])) {
-            $options = \Arr::merge($options, $renderer['renderer_options']);
-        }
+        ), \Arr::get($renderer, 'renderer_options', array()));
 
         return array($attributes, $options);
     }
@@ -281,6 +286,7 @@ class Renderer_Media extends \Fieldset_Field
      */
     protected static function hydrate_options(&$options, $attributes = array())
     {
+        // Value
         if (!empty($attributes['value'])) {
             $media = \Novius\OnlineMediaFiles\Model_Media::find($attributes['value']);
             if (!empty($media)) {
@@ -288,14 +294,18 @@ class Renderer_Media extends \Fieldset_Field
                 $options['inputFileThumb']['title'] = $media->onme_title;
             }
         }
+
+        // Required
         if (!empty($attributes['required'])) {
             $options['inputFileThumb']['allowDelete'] = false;
         }
+
+        // Unset options that are not necessary
         if (isset($options['values'])) {
             unset($options['values']);
         }
-        if (isset($renderer['multiple'])) {
-            unset($renderer['multiple']);
+        if (isset($options['multiple'])) {
+            unset($options['multiple']);
         }
     }
 
