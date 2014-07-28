@@ -9,20 +9,13 @@
  */
 
 return array(
-	'name'		=> __('Oembed'),
+	'name'		=> __('Slideshare'),
 	'icon'		=> array(
-		'16' => 'oembed.png',
+		'16' => 'slideshare.png',
 	),
     // Oembed api configuration
     'api'       => array(
-        'path'  => '/services/oembed',
-        'parameters'    => array(
-            'format'        => 'json',
-        ),
-    ),
-
-    // Custom API paths depending on host
-    'path_mapping'  => array(
-        'soundcloud.com'   => '/oembed'
+        'path'      => '/api/oembed/2',
+        'host'      => 'www.slideshare.net'
     ),
 );

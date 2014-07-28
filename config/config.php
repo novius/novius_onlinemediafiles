@@ -21,6 +21,7 @@ return array(
         'Flickr',
         'Instagram',
         'Vine',
+        'Slideshare',
         'Oembed',
     ),
 );
