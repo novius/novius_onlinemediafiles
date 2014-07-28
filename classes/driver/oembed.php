@@ -33,7 +33,7 @@ class Driver_Oembed extends Driver {
 
 		// Check if oembed is compatible on this host
 		if (!isset($this->checked[$api_url])) {
-			$this->checked[$api_url] = static::ping($api_url);
+			$this->checked[$api_url] = $this->ping($api_url);
 		}
 		return $this->checked[$api_url];
     }
@@ -71,21 +71,8 @@ class Driver_Oembed extends Driver {
             )
         ));
 
-		// Check if the API is up
-		if (!static::ping($api_url)) {
-			return false;
-		}
-
-        $opts = array(
-            'http' => array(
-                'user_agent'  => !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Custom',
-                'timeout' => 10,
-            )
-        );
-
-        $context  = stream_context_create($opts);
-		// Get the json response
-        $response = ($json = file_get_contents($api_url, false, $context)) ? json_decode($json) : false;
+        // Get the json response
+        $response = json_decode(static::get_url_content($api_url));
 		if (empty($response)) {
 			return false;
 		}
@@ -141,5 +128,56 @@ class Driver_Oembed extends Driver {
         }
         // Returns default path
         return $default_path ? $default_path : \Arr::get($this->config, 'api.path');
+    }
+
+    /**
+     * Ping the given url (check HTTP status 200)
+     *
+     * @param $url
+     * @return bool
+     * @throws \Exception
+     */
+    public function ping($url) {
+        $http_timeout = \Arr::get($this->config, 'http.timeout', 5);
+        $http_user_agent = \Arr::get($_SERVER, 'HTTP_USER_AGENT', 'Custom');
+
+        // Curl
+        if (function_exists('curl_init')) {
+
+            // Create the context
+            $context = curl_init();
+            curl_setopt($context, CURLOPT_URL, $url);
+            curl_setopt($context, CURLOPT_HEADER, 1);
+            curl_setopt($context, CURLOPT_VERBOSE, 1);
+            curl_setopt($context, CURLOPT_TIMEOUT, $http_timeout);
+            curl_setopt($context, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($context, CURLOPT_USERAGENT, $http_user_agent);
+            curl_setopt($context, CURLOPT_SSL_VERIFYPEER, static::isSSL($url));
+
+            // Execute
+            curl_exec($context);
+
+            // Check the status code of the HTTP response (200 = success)
+            if (curl_getinfo($context, CURLINFO_HTTP_CODE) == 200) {
+                return true;
+            }
+        }
+
+        // Native
+        else {
+
+            // Ping over https using native functions is not supported if the OpenSSL module is not installed
+            if (static::isSSL($url) && !extension_loaded('openssl')) {
+                return false;
+            }
+
+            // Grab the headers and check the HTTP status code
+            $headers = get_headers($url, 1);
+            if (strpos($headers[0], '200 OK') !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

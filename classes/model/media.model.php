@@ -167,7 +167,7 @@ class Model_Media extends \Nos\Orm\Model
      * @return mixed
      */
     public function thumbnail() {
-        return $this->driver()->thumbnail();
+        return $this->driver() ? $this->driver()->thumbnail() : null;
     }
 
     /**
@@ -177,6 +177,6 @@ class Model_Media extends \Nos\Orm\Model
      * @return mixed|string
      */
     public function display($params = array()) {
-        return $this->driver()->display($params);
+        return $this->driver() ? $this->driver()->display($params) : null;
     }
 }

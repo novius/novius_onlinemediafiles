@@ -222,24 +222,6 @@ abstract class Driver {
         return parse_url($url, $component);
     }
 
-	/**
-	 * Ping the given url (check HTTP status 200)
-	 *
-	 * @param $url
-	 * @return bool
-     * @throws \Exception
-     */
-    public static function ping($url) {
-        // Ping over https is not supported if the OpenSSL module is not installed
-        if (!extension_loaded('openssl') && static::isSSL($url)) {
-            throw new \Exception(__('Your server is currently not compatible with this media. Please contact your administrator to enable SSL support.'));
-        }
-
-        // Grab the headers and check the HTTP status code
-        $headers = get_headers($url, 1);
-        return strpos($headers[0], '200 OK') !== false;
-	}
-
     /**
      * Check if $url uses the SSL protocol
      *
@@ -250,8 +232,65 @@ abstract class Driver {
         return (strtolower(substr($url, 0, 8)) == 'https://');
     }
 
-	/**
-	 * Convert recursively ojects in array
+    /**
+     * Return the content of an $url
+     *
+     * @param $url
+     * @return bool|mixed|string
+     * @throws \Exception
+     */
+    public function get_url_content($url) {
+        $http_timeout = \Arr::get($this->config, 'http.timeout', 5);
+        $http_user_agent = \Arr::get($_SERVER, 'HTTP_USER_AGENT', 'Custom');
+
+        // Curl
+        if (function_exists('curl_init')) {
+
+            // Create the context
+            $context = curl_init();
+            curl_setopt($context, CURLOPT_URL, $url);
+            curl_setopt($context, CURLOPT_HEADER, 0);
+            curl_setopt($context, CURLOPT_VERBOSE, 1);
+            curl_setopt($context, CURLOPT_TIMEOUT, $http_timeout);
+            curl_setopt($context, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($context, CURLOPT_USERAGENT, $http_user_agent);
+            curl_setopt($context, CURLOPT_SSL_VERIFYPEER, static::isSSL($url));
+
+            // Get the response
+            $response = curl_exec($context);
+
+            // Check the status code of the HTTP response (200 = success)
+            if (curl_getinfo($context, CURLINFO_HTTP_CODE) != 200) {
+                return false;
+            }
+        }
+
+        // Native
+        else {
+
+            // We need the OpenSSL module for SSL urls
+            if (static::isSSL($url) && !extension_loaded('openssl')) {
+                throw new \Exception(__('Your server is currently not compatible with this media. Please contact your administrator to enable SSL support.'));
+            }
+
+            // Create the context
+            $context = stream_context_create(array(
+                'http' => array(
+                    'method' => 'GET',
+                    'user_agent' => $http_user_agent,
+                    'timeout' => $http_timeout,
+                )
+            ));
+
+            // Get the response
+            $response = file_get_contents($url, false, $context);
+        }
+
+        return $response;
+    }
+
+    /**
+	 * Convert recursively objects in array
 	 *
 	 * @param $obj
 	 * @return object

@@ -57,16 +57,9 @@ class Driver_Vimeo extends Driver {
 		// Build the API url
         $api_url = 'http://vimeo.com/api/v2/video/'.$this->identifier().'.json';
 
-		// Check if the API is up
-		if (!static::ping($api_url)) {
-			return false;
-		}
-
 		// Get the json response
-		$response = ($json = file_get_contents($api_url)) ? json_decode($json) : false;
-		if (is_array($response)) {
-			$response = reset($response);
-		}
+        $response = json_decode(static::get_url_content($api_url));
+        !is_array($response) or ($response = reset($response));
 		if (empty($response)) {
 			return false;
 		}

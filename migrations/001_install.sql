@@ -6,7 +6,7 @@
  *             http://www.gnu.org/licenses/agpl-3.0.html
  * @link http://www.novius.com
  */
- 
+
 CREATE TABLE IF NOT EXISTS `novius_onlinemediafiles` (
   `onme_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `onme_folder_id` int(10) unsigned NOT NULL,
