@@ -23,6 +23,12 @@ $btn_synchro_id = uniqid('btn_synchro_');
     );
 </script>
 <style type="text/css">
+.wrap_preview {
+    max-height: 600px;
+    overflow: hidden;
+    margin: 0 10px 10px 10px;
+    padding: 10px 0 0 0;
+}
 .wrap_preview .nothing {
     padding: 10px;
     font-style: italic;
