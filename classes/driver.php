@@ -290,11 +290,11 @@ abstract class Driver {
     }
 
     /**
-	 * Convert recursively objects in array
-	 *
-	 * @param $obj
-	 * @return object
-	 */
+     * Convert recursively objects in array
+     *
+     * @param $obj
+     * @return object
+     */
 	public static function objectToArray($obj) {
 		if (is_array($obj)) {
 			return array_map('static::objectToArray', $obj);
