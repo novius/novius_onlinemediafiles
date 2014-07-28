@@ -1,4 +1,4 @@
-<?php
+1;2802;0c<?php
 /**
  * NOVIUS
  *
@@ -22,6 +22,7 @@ return array(
         'Instagram',
         'Vine',
         'Slideshare',
+        'Storify',
         'Oembed',
     ),
 );
