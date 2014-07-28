@@ -40,9 +40,9 @@ UTILISATION :
 RENDERER :
 =======================================================================================================================
 
-L'application propose un renderer (Renderer_Media) pour associer un ou plusieurs médias à un Model.
+The app provides you a renderer (Renderer_Media) to associate one or many media to any Model.
 
-    Renderer dans un CRUD :
+    Renderer in a CRUD :
         $config['fields']['onlinemedia'] = array(
             'label' => '',
             'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',
@@ -63,10 +63,63 @@ L'application propose un renderer (Renderer_Media) pour associer un ou plusieurs
             ),
         ));
 
-    Les options spécifiques au renderer sont :
+    Specific options are :
         array(
             'multiple'  => true,
+            'provider_relation' => true, //if you use a provider to link medias to your model, this is needed
+            'key_prefix' => 'my_prefix' //When you use a provider with the multiple option, you can set a custom prefix for your medias
         )
+
+The new system of providers set by Novios OS 5.0 (Elche) permit you to easily add medias to any model. You have multiple way to use it.
+
+* First, you need to set the provider to your model. Here is the configuration that is needed. We provide you all model that you need to link any model to many medias.
+
+    Add an "has many" relation :
+        'linked_online_medias' => array(
+            'key_from'       => 'your_primary_key_field',
+            'model_to'       => '\Novius\OnlineMediaFiles\Model_Link',
+            'key_to'         => 'onli_foreign_id',
+            'condition'      => 'where' => array(
+                array('onli_from_table', '=', \DB::expr(\DB::quote(static::$_table_name))),
+            ),
+            'cascade_save'   => true,
+            'cascade_delete' => true,
+        ),
+
+    Add the provider himself :
+        'online_medias' => array(
+            'relation' => 'linked_online_medias',
+            'key_property' => 'onli_key',
+            'value_property' => 'onli_onme_id',
+            'value_relation' => 'media',
+            'table_name_property' => 'onli_from_table',
+        ),
+
+    After, that, your provider is ready, you can use it into your crud in two ways :
+
+    * For multiple media, you need to add a field wich name is the "has many" relation name. The 'provider_relation' option is also needed. Note that you can use this configuration without the multiple option.
+        $config['fields']['linked_online_medias'] = array(
+            'label' => __('Online medias'),
+            'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',
+            'renderer_options' => array(
+                'multiple' => true,
+                'provider_relation' => true,
+            ),
+            'form' => array(
+                'title' => __('Online medias'),
+            )
+        ),
+
+    * For a single relation type, just name it like a regular medias or a wysiwyg
+        $config['fields']['online_medias->my_media_key->onli_onme_id'] = array(
+            'label' => __('Online medias'),
+            'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',
+            'renderer_options' => array(
+            ),
+            'form' => array(
+                'title' => __('Online medias'),
+            )
+        ),
 
 =======================================================================================================================
 TODO :
