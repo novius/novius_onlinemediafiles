@@ -71,11 +71,11 @@ class Driver_Storify extends Driver {
      * @param array $params
      * @return mixed|string
      */
-	public function display($params = array()) {
+    public function display($params = array()) {
         return \View::forge('novius_onlinemediafiles::front/driver/storify/embed', array(
             'driver' => $this,
-		), $params)->render();
-	}
+        ), $params)->render();
+    }
 
     /**
      * Fetch the online media attributes (title, description, metadatas...)
@@ -92,11 +92,11 @@ class Driver_Storify extends Driver {
         // Call the storify API
         $api_url = 'http://api.storify.com/v1/stories/'.$this->getUsername().'/'.$this->getSlug();
 
-		// Get the json response
+        // Get the json response
         $response = json_decode(static::get_url_content($api_url));
-		if (empty($response) || empty($response->content)) {
-			return false;
-		}
+        if (empty($response) || empty($response->content)) {
+            return false;
+        }
 
         // Title is required
         if (empty($response->content->title)) {
