@@ -3,12 +3,16 @@
 Online Media Files is an application for Novius OS for managing and displaying online media files.
 
 Supported providers are :
-* Youtube
 * Dailymotion
-* Vimeo
 * Flickr
 * Instagram
+* Slideshare
 * Soundcloud
+* Spotify
+* Storify
+* Vimeo
+* Vine
+* Youtube
 
 In addition, any platforms that implements the oEmbed format is supported (see below for more informations).
 
@@ -73,13 +77,17 @@ Available drivers are set in the configuration file `novius_onlinemediafiles/con
 * Available drivers
 */
 'drivers' => array(
-    'Youtube',
-    'Dailymotion',
-    'Vimeo',
-    'Soundcloud',
-    'Flickr',
-    'Instagram',
-    'Oembed',
+        'Youtube',
+        'Dailymotion',
+        'Vimeo',
+        'Soundcloud',
+        'Spotify',
+        'Flickr',
+        'Instagram',
+        'Vine',
+        'Slideshare',
+        'Storify',
+        'Oembed',
 ),
 ```
 
