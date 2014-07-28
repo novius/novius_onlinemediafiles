@@ -13,6 +13,7 @@ namespace Novius\OnlineMediaFiles;
 class Renderer_Media extends \Fieldset_Field
 {
     protected $options                  = array();
+    protected $_key_prefix              = 'media_';
 
     public static function _init()
     {
@@ -22,6 +23,9 @@ class Renderer_Media extends \Fieldset_Field
     public function __construct($name, $label = '', array $renderer = array(), array $rules = array(), \Fuel\Core\Fieldset $fieldset = null)
     {
         list($attributes, $this->options) = static::parse_options($renderer);
+        if (\Arr::get($this->options, 'key_prefix', false)) {
+            $this->_key_prefix = \Arr::get($this->options, 'key_prefix').'_';
+        }
         parent::__construct($name, $label, $attributes, $rules, $fieldset);
     }
 
@@ -39,9 +43,15 @@ class Renderer_Media extends \Fieldset_Field
         $item = $this->fieldset()->getInstance();
         $field_name = $this->name;
         $class = get_class($item);
+        $exploded_field_name = explode('->', $field_name);
+        if (count($exploded_field_name) > 1) {
+            $provider = $class::providers($exploded_field_name[0]);
+        } else {
+            $provider = null;
+        }
         $relation = $class::relations($field_name);
         $attributes = $class::properties();
-        $field_found = !empty($relation) || isset($attributes[$field_name]);
+        $field_found = !empty($relation) || isset($attributes[$field_name]) || !empty($provider);
         if (!$field_found) {
             throw new \Exception('Field or relation `'.$field_name.'` cannot be found in '.get_class($item));
         }
@@ -49,15 +59,15 @@ class Renderer_Media extends \Fieldset_Field
         $is_multiple = isset($this->options['multiple']) ? $this->options['multiple'] : is_array($item->{$field_name});
 
         // Generate the values
-        $values = array();
-        if (is_array($item->{$field_name})) {
-            foreach ($item->{$field_name} as $media) {
-                $values[] = $media->onme_id;
+        if (!empty($this->attributes['value'])) {
+            if (is_array($this->attributes['value'])) {
+                $values = $this->_getItemValues(); //We use a private method to retrive the good items in case of a provider.
+            } else {
+                $values = array($this->attributes['value']);
             }
-        } elseif (is_a($item->{$field_name}, 'Novius\OnlineMediaFiles\Model_Media')) {
-            $values = array($item->{$field_name}->onme_id);
+
         } else {
-            $values = array(intval($item->{$field_name}));
+            $values = $this->_getItemValues(); //If no values are set, we check them via the item
         }
 
         // Set an empty value by default
@@ -75,13 +85,14 @@ class Renderer_Media extends \Fieldset_Field
         //template will be stored to apply it on all fields, not only the input
         $template = $this->template;
         $this->template = !empty($this->options['field_template']) ? $this->options['field_template'] : '<div style="padding: 10px">{field}</div>';
-        foreach ($values as $value) {
 
-            // Add brackets at the end of the input name if multiple
-            if ($is_multiple) {
-                $this->set_attribute('name', $field_name.'[]');
-                $this->name = $field_name.'[]';
-            }
+        // Add brackets at the end of the input name if multiple
+        if ($is_multiple) {
+            $this->set_attribute('name', $field_name.'[]');
+            $this->name = $field_name.'[]';
+        }
+
+        foreach ($values as $value) {
 
             // Build the field
             $this->set_attribute('id', '');
@@ -122,6 +133,35 @@ class Renderer_Media extends \Fieldset_Field
             'fields'    => $fields,
             'id'        => $uniqid
         ), false));
+    }
+
+    /**
+     * Retrieve the item value to populate the renderer
+     * @return array
+     */
+    protected function _getItemValues()
+    {
+        $item = $this->fieldset()->getInstance();
+        $field_name = $this->name;
+        $values = array();
+        if (is_array($item->{$field_name})) {
+            foreach ($item->{$field_name} as $media_id => $media) {
+                //If the provider_relation option is set, $media is a Model_Link
+                if (\Arr::get($this->options, 'provider_relation', false)) {
+                    //We need to filter them by key.
+                    if (!\Str::starts_with($media->onli_key, $this->_key_prefix)) {
+                        unset($item->{$field_name}[$media_id]);
+                        continue;
+                    }
+                }
+                $values[] = $media->onme_id;
+            }
+        } elseif (is_a($item->{$field_name}, 'Novius\OnlineMediaFiles\Model_Media')) {
+            $values = array($item->{$field_name}->onme_id);
+        } else {
+            $values = array(intval($item->{$field_name}));
+        }
+        return $values;
     }
 
     /**
@@ -210,11 +250,26 @@ class Renderer_Media extends \Fieldset_Field
     {
         $relation_name = $this->name;
 
-        // Multiple
+        if (\Arr::get($this->options, 'provider_relation', false) && !is_array($data[$relation_name])) {
+            $data[$relation_name] = array($data[$relation_name]);
+        }
+
+        // Multiple or single with the provider_relation option set
         if (!empty($data[$relation_name]) && is_array($data[$relation_name])) {
 
-            // Clear the current linked videos
-            $item->{$relation_name} = array();
+            //Stor the original linked media
+            $original_links = $item->{$relation_name};
+            foreach ($original_links as $link_id => $oModel_Link) { //filter the links with the prefix
+                if (!\Str::starts_with($oModel_Link->onli_key, $this->_key_prefix)) {
+                    unset($original_links[$link_id]);
+                    continue;
+                } else {
+                    // Clear the current linked videos
+                    unset($item->{$relation_name}[$link_id]);
+                }
+            }
+            $linked_media_keys = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_key');
+            $links_ids = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_id');
 
             //Initialize the array to prevent test on an undefined variable
             $media_ids = array();
@@ -228,20 +283,51 @@ class Renderer_Media extends \Fieldset_Field
                 $medias = \Novius\OnlineMediaFiles\Model_Media::find('all', array(
                     'where' => array(array('onme_id', 'IN', array_values($media_ids)))
                 ));
+            } else {
+                if (\Arr::get($this->options, 'provider_relation', false)) {
+                    $this->deleteLinks($links_ids);
+                }
+                return false;
+            }
+
+            if (\Arr::get($this->options, 'provider_relation', false)) { //Use a provider that use the Model_Link
+                $links_to_keep = array();
+                $i = 0;
+                foreach ($medias as $media) {
+                    //Media is already linked to the model
+                    if (array_key_exists($media->id, $linked_media_keys) && $linked_media_keys[$media->id] == $this->_key_prefix.$i) {
+                        $links_to_keep[] = $links_ids[$media->id];
+                        $original_links[$links_ids[$media->id]]->onli_key = $this->_key_prefix.$i;
+                        $original_links[$links_ids[$media->id]]->save();
+                        $item->{$relation_name}[$links_ids[$media->id]] = $original_links[$links_ids[$media->id]];
+                    } else { //Otherwise we create a new link
+                        $media_link = \Novius\OnlineMediaFiles\Model_Link::forge(
+                            array(
+                                'onli_from_table' => $item::table(),
+                                'onli_foreign_id' => $item->id,
+                                'onli_key' => $this->_key_prefix.$i,
+                            )
+                        );
+                        $media_link->media = $media;
+                        $media_link->save();
+                        $item->{$relation_name}[$media_link->id] = $media_link;
+                    }
+                    $i++;
+                }
+                $links_to_delete = array_diff($links_ids, $links_to_keep);
+                $this->deleteLinks($links_to_delete);
+            } else { //Case for a classic relation between a model and medias.
                 foreach ($media_ids as $k => $id) {
                     if (isset($medias[$id])) {
                         $item->{$relation_name}[$k] = $medias[$id];
                     }
                 }
-                $item->{$relation_name} = $medias;
             }
 
             return false;
         }
-
-        // Single
+        // Single : There is nothing to do here : it's a simple field
         else {
-            $item->{$relation_name} = $data[$relation_name];
             return true;
         }
     }
@@ -330,5 +416,22 @@ class Renderer_Media extends \Fieldset_Field
     protected static function css_init()
     {
         return \View::forge('novius_onlinemediafiles::admin/renderer/media_css', array(), false);
+    }
+
+    /**
+     * Clean the link media table
+     *
+     * @param array $links_ids
+     */
+    protected function deleteLinks($links_ids = array())
+    {
+        if (!is_array($links_ids) || empty($links_ids)) return;
+
+        $links = \Novius\OnlineMediaFiles\Model_Link::find('all', array(
+            'where' => array(array('onli_id', 'IN', array_values($links_ids)))
+        ));
+        foreach ($links as $oModel_Link) {
+            $oModel_Link->delete();
+        }
     }
 }
