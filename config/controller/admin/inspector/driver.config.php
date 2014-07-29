@@ -35,26 +35,7 @@ foreach ($config['drivers'] as $driver_name) {
 		'title' => \Arr::get($driver_config, 'name', $driver_name),
 		'icon' 	=> \Arr::get($driver_config, 'icon.16'),
 	);
-
 }
-
-//$data = array(
-//	array(
-//		'id' => 'Youtube',
-//		'title' => __('vidéo Youtube'),
-//		'icon' => 'youtube.jpg',
-//	),
-//	array(
-//		'id' => 'Dailymotion',
-//		'title' => __('vidéo Dailymotion'),
-//		'icon' => 'dailymotion.png',
-//	),
-//	array(
-//		'id' => 'Vimeo',
-//		'title' => __('vidéos Vimeo'),
-//		'icon' => 'vimeo.png',
-//	),
-//);
 
 return array(
     'data' => $data,
