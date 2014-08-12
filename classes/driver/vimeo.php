@@ -89,7 +89,7 @@ class Driver_Vimeo extends Driver {
         // Sanitize description
         $attributes['description'] = preg_replace('`<br\s*/?>`i', "\n", $attributes['description']);
 
-        return $attributes;
+        return $this->attributes($attributes);
     }
 
     /**
