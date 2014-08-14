@@ -31,6 +31,11 @@ class Model_Link extends \Nos\Orm\Model
             'data_type' => 'int unsigned',
             'null' => false,
         ),
+        'onli_foreign_context_common_id' => array(
+            'default' => null,
+            'data_type' => 'int unsigned',
+            'null' => false,
+        ),
         'onli_key' => array(
             'default' => null,
             'data_type' => 'varchar',
