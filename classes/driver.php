@@ -32,7 +32,7 @@ abstract class Driver {
      */
     public function __construct($url) {
         $this->class_name = get_class($this);
-        $this->driver_name = substr($this->class_name, strrpos($this->class_name, '\\') + 1);
+        $this->driver_name = static::buildDriverName($this->class_name);
 
         // Load driver config
         $this->loadConfig();
@@ -47,6 +47,16 @@ abstract class Driver {
                 }
             }
         }
+    }
+
+    /**
+     * Build driver name from class
+     *
+     * @param $driver_class
+     * @return string
+     */
+    public static function buildDriverName($driver_class) {
+        return substr($driver_class, strrpos($driver_class, '\\') + 1);
     }
 
     /**
