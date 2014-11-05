@@ -292,84 +292,95 @@ class Renderer_Media extends \Fieldset_Field
             return true;
         }
 
-        // Store the original linked media
-        $original_links = $item->{$relation_name};
-        foreach ($original_links as $link_id => $oModel_Link) { //filter the links with the prefix
-            if (!\Str::starts_with($oModel_Link->onli_key, $this->_key_prefix)) {
-                unset($original_links[$link_id]);
-                continue;
-            } else {
-                // Clear the current linked videos
-                unset($item->{$relation_name}[$link_id]);
-            }
-        }
-        $linked_media_keys = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_key');
-        $links_ids = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_id');
-
-        // Get the new linked online media IDs
+        // Get the new linked online medias
         $media_ids = array();
-        foreach ($values  as $media_id) {
-            if (ctype_digit($media_id) ) {
-                $media_ids[] = intval($media_id);
+        foreach ($values as $k => $value) {
+            if (ctype_digit($value)) {
+                $media_ids[$k] = intval($value);
             }
         }
-        // Don't go further if there are no linked online medias
-        if (!count($media_ids)) {
-            if (\Arr::get($this->options, 'provider_relation')) {
-                // Delete existing links
-                $this->deleteLinks($links_ids);
-            }
-            return false;
-        }
-
-        $medias = \Novius\OnlineMediaFiles\Model_Media::find('all', array(
-            'where' => array(array('onme_id', 'IN', array_values($media_ids)))
-        ));
+        $medias = $this->getMedias($media_ids);
 
         // Save new links for a provider
-        if (\Arr::get($this->options, 'provider_relation')) {
-            $relation = $item::relations(\Arr::get($this->options, 'provider_relation'));
-            $key_from = $relation->key_from;
-            $key_from = reset($key_from);
-            $key_to = $relation->key_to;
-            $key_to = reset($key_to);
+        $provider_relation = \Arr::get($this->options, 'provider_relation');
+        if (!empty($provider_relation)) {
 
+            // Get the original media links filtered by prefix
+            $original_links = $item->{$relation_name};
+            foreach ($original_links as $link_id => $link_item) {
+                if (!\Str::starts_with($link_item->onli_key, $this->_key_prefix)) {
+                    unset($original_links[$link_id]);
+                } else {
+                    unset($item->{$relation_name}[$link_id]);
+                }
+            }
+            $original_media_keys = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_key');
+            $original_media_ids = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_id');
+
+            $relation = $item::relations($provider_relation);
+            $key_from = \Arr::get($relation->key_from, 0);
+            $key_to = \Arr::get($relation->key_to, 0);
+
+            // Create/update the medias links
             $links_to_keep = array();
-            $i = 0;
+            $counter = 0;
             foreach ($medias as $media) {
-                //Media is already linked to the model
-                if (array_key_exists($media->id, $linked_media_keys) && $linked_media_keys[$media->id] == $this->_key_prefix.$i) {
-                    $links_to_keep[] = $links_ids[$media->id];
-                    $original_links[$links_ids[$media->id]]->onli_key = $this->_key_prefix.$i;
-                    $original_links[$links_ids[$media->id]]->save();
-                    $item->{$relation_name}[$links_ids[$media->id]] = $original_links[$links_ids[$media->id]];
-                } else { //Otherwise we create a new link
-                    $media_link = \Novius\OnlineMediaFiles\Model_Link::forge(
-                        array(
-                            'onli_from_table' => $item::table(),
-                            $key_to => $item->{$key_from},
-                            'onli_key' => $this->_key_prefix.$i,
-                        )
-                    );
+                // Media is already linked to the model (same ID and same prefix)
+                if (array_key_exists($media->id, $original_media_keys) && $original_media_keys[$media->id] == $this->_key_prefix.$counter) {
+                    $link_id = \Arr::get($original_media_ids, $media->id);
+                    $link = \Arr::get($original_links, $link_id);
+                    $link->onli_key = $this->_key_prefix.$counter;
+                    $link->save();
+                    $item->{$relation_name}[$link_id] = $link;
+                    $links_to_keep[] = $link_id;
+                }
+                // Otherwise we create a new media link
+                else {
+                    $media_link = \Novius\OnlineMediaFiles\Model_Link::forge(array(
+                        'onli_from_table' => $item::table(),
+                        $key_to => $item->{$key_from},
+                        'onli_key' => $this->_key_prefix.$counter,
+                    ));
                     $media_link->media = $media;
                     $media_link->save();
                     $item->{$relation_name}[$media_link->id] = $media_link;
                 }
-                $i++;
+                $counter++;
             }
-            $links_to_delete = array_diff($links_ids, $links_to_keep);
-            $this->deleteLinks($links_to_delete);
+            // Delete links that were not created or updated
+            $this->deleteLinks(array_diff($original_media_ids, $links_to_keep));
         }
+
         // Save new links for a relation
         else {
-            foreach ($media_ids as $k => $id) {
-                if (isset($medias[$id])) {
-                    $item->{$relation_name}[$k] = $medias[$id];
-                }
+            $item->{$relation_name} = array();
+            foreach ($medias as $k => $media) {
+                $item->{$relation_name}[$k] = $media;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Get medias by ids (ordered by position in $ids)
+     *
+     * @param $ids
+     * @return array|\Orm\Model|\Orm\Model[]
+     */
+    public function getMedias($ids) {
+        if (!count($ids)) {
+            return array();
+        }
+        // Find the medias
+        $medias = Model_Media::find('all', array(
+            'where' => array(array('onme_id', 'IN', array_values($ids)))
+        ));
+        // Sort by position in $ids
+        usort($medias, function($a, $b) use ($ids) {
+            return array_search($a->onme_id, $ids) - array_search($b->onme_id, $ids);
+        });
+        return $medias;
     }
 
     /**
@@ -470,8 +481,8 @@ class Renderer_Media extends \Fieldset_Field
         $links = \Novius\OnlineMediaFiles\Model_Link::find('all', array(
             'where' => array(array('onli_id', 'IN', array_values($links_ids)))
         ));
-        foreach ($links as $oModel_Link) {
-            $oModel_Link->delete();
+        foreach ($links as $link) {
+            $link->delete();
         }
     }
 }
