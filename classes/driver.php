@@ -32,7 +32,7 @@ abstract class Driver {
      */
     public function __construct($url) {
         $this->class_name = get_class($this);
-        $this->driver_name = substr($this->class_name, strrpos($this->class_name, '\\') + 1);
+        $this->driver_name = static::buildDriverName($this->class_name);
 
         // Load driver config
         $this->loadConfig();
@@ -47,6 +47,16 @@ abstract class Driver {
                 }
             }
         }
+    }
+
+    /**
+     * Build driver name from class
+     *
+     * @param $driver_class
+     * @return string
+     */
+    public static function buildDriverName($driver_class) {
+        return substr($driver_class, strrpos($driver_class, '\\') + 1);
     }
 
     /**
@@ -293,20 +303,24 @@ abstract class Driver {
      * Convert recursively objects in array
      *
      * @param $obj
+     * @param $max_depth
      * @return object
      */
-	public static function objectToArray($obj) {
+	public static function objectToArray($obj, $max_depth = null) {
+        $arr = array();
+        if (is_object($obj)) {
+            $obj = get_object_vars($obj);
+        }
 		if (is_array($obj)) {
-			return array_map('static::objectToArray', $obj);
-		} elseif (is_object($obj)) {
-			$arr = array();
-			$obj = get_object_vars($obj);
-			foreach ($obj as $key => $val) {
-				$arr[$key] = static::objectToArray($val);
-			}
-			return $arr;
-		}
-		return $obj;
+            if (!is_null($max_depth) && $max_depth < 0) {
+                return null;
+            }
+            foreach ($obj as $key => $val) {
+                $arr[$key] = static::objectToArray($val, !is_null($max_depth) ? $max_depth - 1 : $max_depth);
+            }
+            return $arr;
+        }
+        return $obj;
     }
 
     /**
@@ -316,6 +330,22 @@ abstract class Driver {
      */
     public function driverName() {
         return $this->driver_name;
+    }
+
+    /**
+     * Return the driver's icon
+     *
+     * @param int $size
+     * @return mixed
+     */
+    public function driverIcon($size = 16) {
+        $icon = \Arr::get($this->config, 'icon.'.$size);
+
+        if (mb_strpos($icon, '/') === false) {
+            $icon = 'static/apps/novius_onlinemediafiles/icons/'.$size.'/'.$icon;
+        }
+
+		return $icon;
     }
 
     /**

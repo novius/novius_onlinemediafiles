@@ -23,6 +23,7 @@ define(
             var $title = $form.find('input[name="onme_title"]');
             var $metadatas = $form.find('input[name="onme_metadatas"]');
             var $driver_name = $form.find('input[name="onme_driver_name"]');
+            var $driver_icon = $form.find('input[name="onme_driver_icon"]')
             var last_url = $url.val();
             var last_sync_url = last_url;
 
@@ -45,21 +46,26 @@ define(
                 hide_properties();
             }
 
-            //à la modification de l'url, on check si le média est pris en charge
+            // Set icon
+            init_driver_icon();
+
+            // Watch url modification
             $url.on('keyup change focus', function() {
+                // Set button state
                 if ($url.val().length > 5) {
                     $btn_synchro.attr('disabled', false).animate({ opacity: 1 }, 200);
                 } else {
                     $btn_synchro.attr('disabled', true).removeClass('ui-state-hover').animate({ opacity: 0.2 }, 200);
                 }
-                // Force a resync if the url change
+                // Sync if url changed
                 if (last_sync_url != last_url) {
                     $resync.val(last_sync_url != $url.val() ? 1 : 0);
                 }
+                // Save last url
                 last_url = $url.val();
             }).trigger('focus');
 
-            // Sync button
+            // Sync on button click
             $btn_synchro.on('click', function(e) {
                 e.preventDefault();
                 var url = $url.val();
@@ -90,12 +96,16 @@ define(
                         $thumbnail.val(json.thumbnail);
                         $metadatas.val(JSON.stringify(json.metadatas));
                         $driver_name.val(json.driver_name);
+                        $driver_icon.val(json.driver_icon);
 
                         // Update preview
                         update_preview(json);
 
                         // Show properties
                         show_properties();
+
+                        // Driver icon
+                        init_driver_icon();
 
                         // No need to resync anymore
                         $resync.val(0);
@@ -107,6 +117,15 @@ define(
                 });
             });
 
+            function init_form(json) {
+
+            }
+
+            /**
+             * Update the preview after a sync
+             *
+             * @param json
+             */
             function update_preview(json) {
                 if (json.display) {
                     $('.wrap_preview').html(json.display);
@@ -167,8 +186,11 @@ define(
              */
             function show_properties()
             {
-//                $container.show();//css('visibility', 'visible');
-                $container.css('height', 'auto');
+                // Show
+                $container.css({
+                    'height':  'auto',
+                    'visibility': 'visible'
+                });
 
 //                // Thumbnail
 //                $form.find('div.wrap_preview').html('');
@@ -177,7 +199,7 @@ define(
 //                    $form.find('div.wrap_preview').html('<img src="' + url_thumbnail + '" alt="" border="0" style="margin: 5px 0;" />');
 //                }
 
-                // Metadatas
+                // Initialise metadatas
                 $('.row_metadatas').remove();
                 var metadatas = $metadatas.val();
                 if (metadatas.length) {
@@ -210,7 +232,29 @@ define(
 
             function hide_properties()
             {
-                $container.css('height', 0);
+                // Hide
+                $container.css({
+                    'height':  '0',
+                    'visibility': 'hidden'
+                });
+            }
+
+            function init_driver_icon() {
+                // Init driver's icon DOM
+                var $icon = $url.prev('.driver-icon');
+                if (!$icon.length) {
+                    $icon = $('<span/>')
+                        .addClass('driver-icon')
+                        .css({
+                            height: '32px',
+                            width: '32px'
+                        })
+                        .append($('<img/>'))
+                        .insertBefore($url)
+                    ;
+                }
+                // Set driver's icon
+                $icon.find('img').attr('src', $driver_icon.val() || 'static/apps/novius_onlinemediafiles/img/16-icon.png');
             }
 
             function generate_table(datas) {

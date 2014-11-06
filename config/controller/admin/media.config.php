@@ -38,6 +38,7 @@ return array(
                                 'onme_title',
                                 'onme_description',
 								'onme_thumbnail',
+                                'onme_driver_icon',
                             ),
                         ),
                     ),
@@ -186,6 +187,19 @@ return array(
             'form' => array(
                 'type' => 'hidden',
             ),
+        ),
+        'onme_driver_icon' => array (
+            'label' => 'driver_name',
+            'form' => array(
+                'type' => 'hidden',
+            ),
+            'populate' => function($item) {
+                if ($item->is_new() || !$item->driver()) {
+                    return null;
+                }
+                return $item->driver()->driverIcon();
+            },
+            'dont_save' => true,
         ),
         'onme_thumbnail' => array (
             'label' => 'Miniature',

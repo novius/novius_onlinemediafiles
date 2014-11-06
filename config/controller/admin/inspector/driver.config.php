@@ -18,6 +18,18 @@ if (!is_array($common_config)) {
 	$common_config = array();
 }
 
+// Get drivers count
+$count = \DB::query(sprintf(
+    'SELECT `onme_driver_name`, COUNT(onme_id) AS count FROM `%s` GROUP BY `onme_driver_name',
+    \Novius\OnlineMediaFiles\Model_Media::table()
+))->execute()->as_array();
+foreach ($count as $k => $row) {
+    $driver_class = \Novius\OnlineMediaFiles\Driver::buildDriverClass(\Arr::get($row, 'onme_driver_name'));
+    $count[$driver_class] = \Arr::get($row, 'count', 0);
+}
+//$count = \Arr::pluck($count, 'count', 'onme_driver_name');
+
+// Build data
 $data = array();
 foreach ($config['drivers'] as $driver_name) {
 	$driver_class = \Novius\OnlineMediaFiles\Driver::buildDriverClass($driver_name);
@@ -29,10 +41,13 @@ foreach ($config['drivers'] as $driver_name) {
     // Merges with common config
 	$driver_config = \Arr::merge($common_config, (array) $driver_config);
 
+    // Title with count
+    $title = \Arr::get($driver_config, 'name', $driver_name);
+    $title .= sprintf(' (%d)', \Arr::get($count, $driver_class, 0));
 
 	$data[] = array(
 		'id' 	=> $driver_name,
-		'title' => \Arr::get($driver_config, 'name', $driver_name),
+		'title' => $title,
 		'icon' 	=> \Arr::get($driver_config, 'icon.16'),
 	);
 }
@@ -48,10 +63,12 @@ return array(
 
 			$config = \Config::load('novius_onlinemediafiles::config', true);
             foreach ($config['drivers'] as $driver) {
+                $driver_class = \Novius\OnlineMediaFiles\Driver::buildDriverClass($driver);
+                $driver_name = \Novius\OnlineMediaFiles\Driver::buildDriverName($driver_class);
                 if (in_array($driver, $value)) {
-                    $ext[] = $driver;
+                    $ext[] = $driver_name;
                 } else {
-                    $other[] = $driver;
+                    $other[] = $driver_name;
                 }
             }
             $opened = false;
