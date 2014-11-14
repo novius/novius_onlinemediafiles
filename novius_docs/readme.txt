@@ -128,10 +128,12 @@ The new system of providers set by Novios OS 5.0 (Elche) permit you to easily ad
 
         }
 
-    After, that, your provider is ready, you can use it into your crud in two ways :
+    After, that, your provider is ready, you can use it into your CRUD in two ways :
 
-    * For multiple media, you need to add a field with a custom field name. The 'provider_relation' option is needed with the relation. Note that you can use this configuration without the multiple option.
-        $config['fields']['custom_online_medias'] = array(
+    * For handling multiple online medias you must add a field with a custom field name and set the 'provider_relation' option filled with the
+      relation name (note that you can use this configuration without the multiple option) :
+
+        $config['fields']['custom_online_medias'] = array( // Do not use the name of the relation or the provider otherwise it may not work
             'label' => __('Online medias'),
             'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',
             'renderer_options' => array(
@@ -143,7 +145,8 @@ The new system of providers set by Novios OS 5.0 (Elche) permit you to easily ad
             )
         ),
 
-    * For a single relation type, just name it like a regular medias or a wysiwyg
+    * For handling a single relation type, just name it like a regular medias or a wysiwyg :
+
         $config['fields']['online_medias->my_media_key->onli_onme_id'] = array(
             'label' => __('Online medias'),
             'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',

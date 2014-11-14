@@ -20,14 +20,13 @@ if (!is_array($common_config)) {
 
 // Get drivers count
 $count = \DB::query(sprintf(
-    'SELECT `onme_driver_name`, COUNT(onme_id) AS count FROM `%s` GROUP BY `onme_driver_name',
+    'SELECT `onme_driver_name`, COUNT(onme_id) AS count FROM `%s` GROUP BY `onme_driver_name`',
     \Novius\OnlineMediaFiles\Model_Media::table()
 ))->execute()->as_array();
 foreach ($count as $k => $row) {
     $driver_class = \Novius\OnlineMediaFiles\Driver::buildDriverClass(\Arr::get($row, 'onme_driver_name'));
     $count[$driver_class] = \Arr::get($row, 'count', 0);
 }
-//$count = \Arr::pluck($count, 'count', 'onme_driver_name');
 
 // Build data
 $data = array();
