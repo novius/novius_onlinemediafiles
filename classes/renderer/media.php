@@ -314,8 +314,8 @@ class Renderer_Media extends \Fieldset_Field
                     unset($item->{$relation_name}[$link_id]);
                 }
             }
-            $original_media_keys = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_key');
-            $original_media_ids = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_id');
+            $original_link_keys = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_key');
+            $original_link_ids = \Arr::assoc_to_keyval($original_links, 'onli_onme_id', 'onli_id');
 
             $relation = $item::relations($provider_relation);
             $key_from = \Arr::get($relation->key_from, 0);
@@ -326,8 +326,8 @@ class Renderer_Media extends \Fieldset_Field
             $counter = 0;
             foreach ($medias as $media) {
                 // Media is already linked to the model (same ID and same prefix)
-                if (array_key_exists($media->id, $original_media_keys) && $original_media_keys[$media->id] == $this->_key_prefix.$counter) {
-                    $link_id = \Arr::get($original_media_ids, $media->id);
+                $link_id = \Arr::get($original_link_ids, $media->id);
+                if (!empty($link_id) && array_key_exists($media->id, $original_link_keys) && $original_link_keys[$media->id] == $this->_key_prefix.$counter) {
                     $link = \Arr::get($original_links, $link_id);
                     $link->onli_key = $this->_key_prefix.$counter;
                     $link->save();
@@ -348,7 +348,7 @@ class Renderer_Media extends \Fieldset_Field
                 $counter++;
             }
             // Delete links that were not created or updated
-            $this->deleteLinks(array_diff($original_media_ids, $links_to_keep));
+            $this->deleteLinks(array_diff($original_link_ids, $links_to_keep));
         }
 
         // Save new links for a relation
