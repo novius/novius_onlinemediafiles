@@ -9,9 +9,7 @@
  */
 
 return array(
-    /*
-     * Available drivers
-     */
+    // Available drivers
     'drivers' => array(
         'Youtube',
         'Dailymotion',
@@ -25,12 +23,13 @@ return array(
         'Storify',
         'Oembed',
     ),
+
+    // The path of the front stylesheet (set an empty value to disable)
+    'front_css_path'  => 'static/apps/novius_onlinemediafiles/css/front.css',
+
+    // The responsive configuration
     'responsive' => array(
         // Enable or disable the responsive features
         'enabled'   => false,
-        // The path of the responsive stylesheet (set an empty value to disable)
-        'css_path'  => 'static/apps/novius_onlinemediafiles/css/responsive.css',
-        // The css class wrapping the media (set an empty value to disable)
-        'css_class' => 'onlinemediafiles-fluid-wrapper',
     ),
 );

@@ -12,9 +12,10 @@ return array(
     // Configuration for the "display" enhancer
     'display' => array(
         'default_params' => array(
-            'media_width'         => null,
-            'media_height'        => null,
-            'media_responsive'    => true,
+            'media_width'       => null,
+            'media_height'      => null,
+            'media_align'       => null,
+            'media_responsive'  => true,
         ),
     ),
 );

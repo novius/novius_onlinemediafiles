@@ -454,33 +454,47 @@ abstract class Driver {
         );
 
         // Filter null attributes
-		$attributes = \Arr::filter_recursive($params['attributes'], function($value) {
-			return ($value !== null);
-		});
+        $attributes = \Arr::filter_recursive($params['attributes'], function($value) {
+            return ($value !== null);
+        });
+
+        // Build the responsive configuration
+        $config_responsive = \Arr::merge(
+            (array) \Arr::get($this->app_config, 'responsive', array()),
+            (array) \Arr::get($params, 'responsive', array())
+        );
+
+        $wrapper_classes = array();
+
+        // Alignment
+        $align = \Arr::get($params, 'align');
+        if (!empty($align)) {
+            $wrapper_classes[] = 'onlinemediafiles-align-'.$align;
+        }
+
+        // Responsive
+        if (\Arr::get($config_responsive, 'enabled')) {
+            $wrapper_classes[] = 'onlinemediafiles-fluid-wrapper';
+        }
 
         // Builds the iframe
         $display = '<iframe'.(!empty($attributes) ? ' '.array_to_attr($attributes) : '').'></iframe>';
 
-        // Responsive
-        if (\Arr::get($this->app_config, 'responsive.enabled') && \Arr::get($params, 'responsive')) {
+        // Wraps the media if there are wrapper classes
+        if (!empty($wrapper_classes)) {
+            $display = sprintf('<div class="%s">%s</div>', implode(' ', $wrapper_classes), $display);
+        }
 
-            // Wraps the content with the responsive css class
-            $css_class = \Arr::get($this->app_config, 'responsive.css_class');
-            if (!empty($css_class)) {
-                $display = sprintf('<div class="%s">%s</div>', $css_class, $display);
-            }
-
-            // Appends the responsive stylesheet
-            $css_path = \Arr::get($this->app_config, 'responsive.css_path');
-            if (!empty($css_path)) {
-                $main_controller = Nos::main_controller();
-                if (!empty($main_controller) && method_exists($main_controller, 'addCss')) {
-                    $main_controller->addCss($css_path, false);
-                }
+        // Appends the front stylesheet
+        $css_path = \Arr::get($this->app_config, 'front_css_path');
+        if (!empty($css_path)) {
+            $main_controller = Nos::main_controller();
+            if (!empty($main_controller) && method_exists($main_controller, 'addCss')) {
+                $main_controller->addCss($css_path, false);
             }
         }
 
-        // Apply template
+        // Apply the template
 		$display = str_replace('{display}', $display, \Arr::get($params, 'template'));
 
 		return $display;

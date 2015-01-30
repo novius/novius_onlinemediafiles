@@ -37,10 +37,18 @@ class Controller_Front extends \Nos\Controller_Front_Application {
         if ($height = \Arr::get($args, 'media_height')) {
             \Arr::set($params, 'attributes.height', $height);
 		}
+        if ($align = \Arr::get($args, 'media_align')) {
+            \Arr::set($params, 'attributes.height', $height);
+        }
+
+        // Alignment
+        \Arr::set($params, 'align', \Arr::get($args, 'media_align'));
 
         // Responsive
-        if (isset($args['media_responsive'])) {
-            \Arr::set($params, 'responsive', \Arr::get($args, 'media_responsive'));
+        if (\Arr::get($this->app_config, 'responsive.enabled')) {
+            if (isset($args['media_responsive'])) {
+                \Arr::set($params, 'responsive.enabled', \Arr::get($args, 'media_responsive'));
+            }
         }
 
         return $media->display($params);

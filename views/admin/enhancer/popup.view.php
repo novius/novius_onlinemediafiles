@@ -58,12 +58,25 @@ foreach ($default_params as $field => $value) {
                         <input type="text" name="media_height" data-id="media_height" size="5" id="media_height" value="<?= \Arr::get($default_params, 'media_height') ?>" />
                     </td>
                 </tr>
+                <tr>
+                    <th><?= __('Alignment') ?></th>
+                    <td>
+                        <select name="media_align" id="media_align">
+                            <option value=""></option>
+                            <option value="left"<?= (\Arr::get($default_params, 'media_align') == 'left') ? ' selected="selected"' : '' ?>><?= __('Left') ?></option>
+                            <option value="center"<?= (\Arr::get($default_params, 'media_align') == 'center') ? ' selected="selected"' : '' ?>><?= __('Center') ?></option>
+                            <option value="right"<?= (\Arr::get($default_params, 'media_align') == 'right') ? ' selected="selected"' : '' ?>><?= __('Right') ?></option>
+                            <option value="left-float"<?= (\Arr::get($default_params, 'media_align') == 'left-float') ? ' selected="selected"' : '' ?>><?= __('Left (floating)') ?></option>
+                            <option value="right-float"<?= (\Arr::get($default_params, 'media_align') == 'right-float') ? ' selected="selected"' : '' ?>><?= __('Right (floating)') ?></option>
+                        </select>
+                    </td>
+                </tr>
                 <?php if (\Arr::get($novius_onlinemediafiles_config, 'responsive.enabled')) { ?>
                 <tr>
-                    <th><?= __('Activer la compatibiltié mobile') ?></th>
+                    <th><?= __('Enable mobile support') ?></th>
                     <td>
-                        <input type="radio" name="media_responsive" id="media_responsive-no" value="1" <?= \Arr::get($default_params, 'media_responsive') ? 'checked="true"' : '' ?>" /> Oui
-                        <input type="radio" name="media_responsive" id="media_responsive-yes" value="0" <?= !\Arr::get($default_params, 'media_responsive') ? 'checked="true"' : '' ?>" /> Non
+                        <input type="radio" name="media_responsive" id="media_responsive-no" value="1" <?= \Arr::get($default_params, 'media_responsive') ? 'checked="true"' : '' ?> /> Oui
+                        <input type="radio" name="media_responsive" id="media_responsive-yes" value="0" <?= !\Arr::get($default_params, 'media_responsive') ? 'checked="true"' : '' ?> /> Non
                     </td>
                 </tr>
                 <?php } ?>
