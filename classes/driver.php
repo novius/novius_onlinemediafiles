@@ -10,15 +10,19 @@
 
 namespace Novius\OnlineMediaFiles;
 
+use \Nos\Nos;
+
 abstract class Driver {
 
     // Required fields in driver's config file
     protected $required_fields  = array();
 
-    protected $url            = false;
+    protected $url              = false;
     protected $attributes       = array();
 
+    protected $app_config       = array();
     protected $config           = array();
+
     protected $driver_name      = false;
     protected $class_name       = false;
 
@@ -161,6 +165,9 @@ abstract class Driver {
 
         // Merge with the current config
         $this->config = \Arr::merge($this->config, $config);
+
+        // Load app config
+        $this->app_config = \Config::load('config');
     }
 
     /**
@@ -435,16 +442,16 @@ abstract class Driver {
 	 * @return mixed|string
 	 */
 	public function display($params = array()) {
-        // Default params
-		$params = \Arr::merge(array(
-			'template'		=> '{display}',
-			'attributes'	=> array(
-				'src'			=> $this->url(),
-				'width'			=> 480,
-				'height'		=> 270,
-				'frameborder'	=> '0',
-			)
-		), $params);
+        // Build display params
+		$params = \Arr::merge(
+            \Arr::get($this->config, 'display', array()),
+            array(
+                'attributes'	=> array(
+                    'src' => $this->url(),
+                )
+            ),
+            $params
+        );
 
         // Filter null attributes
 		$attributes = \Arr::filter_recursive($params['attributes'], function($value) {
@@ -452,8 +459,29 @@ abstract class Driver {
 		});
 
         // Builds the iframe
-		$display = '<iframe'.(!empty($attributes) ? ' '.array_to_attr($attributes) : '').'></iframe>';
-		$display = str_replace('{display}', $display, $params['template']);
+        $display = '<iframe'.(!empty($attributes) ? ' '.array_to_attr($attributes) : '').'></iframe>';
+
+        // Responsive
+        if (\Arr::get($this->app_config, 'responsive.enabled') && \Arr::get($params, 'responsive')) {
+
+            // Wraps the content with the responsive css class
+            $css_class = \Arr::get($this->app_config, 'responsive.css_class');
+            if (!empty($css_class)) {
+                $display = sprintf('<div class="%s">%s</div>', $css_class, $display);
+            }
+
+            // Appends the responsive stylesheet
+            $css_path = \Arr::get($this->app_config, 'responsive.css_path');
+            if (!empty($css_path)) {
+                $main_controller = Nos::main_controller();
+                if (!empty($main_controller) && method_exists($main_controller, 'addCss')) {
+                    $main_controller->addCss($css_path, false);
+                }
+            }
+        }
+
+        // Apply template
+		$display = str_replace('{display}', $display, \Arr::get($params, 'template'));
 
 		return $display;
 	}

@@ -28,14 +28,20 @@ class Controller_Front extends \Nos\Controller_Front_Application {
         // Finds the online media item
         $media = Model_Media::find($media_id);
 
-        // Builds params
 		$params = array();
+
+        // Dimensions
 		if ($width = \Arr::get($args, 'media_width')) {
 			\Arr::set($params, 'attributes.width', $width);
 		}
         if ($height = \Arr::get($args, 'media_height')) {
             \Arr::set($params, 'attributes.height', $height);
 		}
+
+        // Responsive
+        if (isset($args['media_responsive'])) {
+            \Arr::set($params, 'responsive', \Arr::get($args, 'media_responsive'));
+        }
 
         return $media->display($params);
     }

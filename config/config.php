@@ -25,4 +25,12 @@ return array(
         'Storify',
         'Oembed',
     ),
+    'responsive' => array(
+        // Enable or disable the responsive features
+        'enabled'   => false,
+        // The path of the responsive stylesheet (set an empty value to disable)
+        'css_path'  => 'static/apps/novius_onlinemediafiles/css/responsive.css',
+        // The css class wrapping the media (set an empty value to disable)
+        'css_class' => 'onlinemediafiles-fluid-wrapper',
+    ),
 );
