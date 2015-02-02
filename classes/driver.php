@@ -468,7 +468,7 @@ abstract class Driver {
 
         // Alignment
         $align = \Arr::get($params, 'align');
-        if (!empty($align)) {
+        if (\Arr::get($this->app_config, 'alignment.enabled') && !empty($align)) {
             $wrapper_classes[] = 'onlinemediafiles-align-'.$align;
         }
 

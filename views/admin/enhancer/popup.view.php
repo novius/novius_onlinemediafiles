@@ -58,6 +58,7 @@ foreach ($default_params as $field => $value) {
                         <input type="text" name="media_height" data-id="media_height" size="5" id="media_height" value="<?= \Arr::get($default_params, 'media_height') ?>" />
                     </td>
                 </tr>
+                <?php if (\Arr::get($novius_onlinemediafiles_config, 'alignment.enabled')) { ?>
                 <tr>
                     <th><?= __('Alignment') ?></th>
                     <td>
@@ -71,6 +72,7 @@ foreach ($default_params as $field => $value) {
                         </select>
                     </td>
                 </tr>
+                <?php } ?>
                 <?php if (\Arr::get($novius_onlinemediafiles_config, 'responsive.enabled')) { ?>
                 <tr>
                     <th><?= __('Enable mobile support') ?></th>

@@ -27,7 +27,13 @@ return array(
     // The path of the front stylesheet (set an empty value to disable)
     'front_css_path'  => 'static/apps/novius_onlinemediafiles/css/front.css',
 
-    // The responsive configuration
+    // Alignment feature
+    'alignment' => array(
+        // Enable or disable the alignment features
+        'enabled'   => true,
+    ),
+
+    // Responsive feature
     'responsive' => array(
         // Enable or disable the responsive features
         'enabled'   => false,
