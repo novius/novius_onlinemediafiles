@@ -167,7 +167,7 @@ abstract class Driver {
         $this->config = \Arr::merge($this->config, $config);
 
         // Load app config
-        $this->app_config = \Config::load('config');
+        $this->app_config = \Config::load('config', true);
     }
 
     /**
@@ -442,6 +442,7 @@ abstract class Driver {
 	 * @return mixed|string
 	 */
 	public function display($params = array()) {
+
         // Build display params
 		$params = \Arr::merge(
             \Arr::get($this->config, 'display', array()),
