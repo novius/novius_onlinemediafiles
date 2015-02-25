@@ -33,6 +33,15 @@ return array(
     'Showing 1 internet media'                      => '1 média internet affiché',
     'No internet medias'                            => 'Pas de média internet',
     'Show all internet medias'                      => 'Afficher tous les médias internet',
+    'Enable mobile support'                         => 'Activer la compatibilité mobile',
+    'Yes'                                           => 'Oui',
+    'No'                                            => 'Non',
+    'Alignment'                                     => 'Alignement',
+    'Left'                                          => 'Gauche',
+    'Center'                                        => 'Centre',
+    'Right'                                         => 'Droite',
+    'Left (floating)'                               => 'Gauche (flottant)',
+    'Right (floating)'                              => 'Droite (flottant)',
 
     // CRUD
     'Synchronize'                                           => 'Synchroniser',
@@ -40,4 +49,5 @@ return array(
     'Online media not found, please check the URL'          => 'Ce média internet est introuvable',
     'This online media is not recognized'                   => 'Ce média internet n\'est pas reconnu',
     'An error occured while synchronizing the online media' => 'La synchronisation du média a échoué',
+
 );

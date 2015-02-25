@@ -10,10 +10,19 @@
 
 \Nos\I18n::current_dictionary(array('novius_onlinemediafiles::common', 'noviusos_media::common', 'nos::common'));
 
+$enhancer_config = \Config::load('enhancer');
+
 $appdeskview = (string) Request::forge('admin/novius_onlinemediafiles/appdesk/index')->execute(array('media_pick'))->response();
+
 $uniqid = uniqid('tabs_');
 $id_library = $uniqid.'_library';
 $id_properties = $uniqid.'_properties';
+
+// Set default values
+$default_params = \Arr::get($enhancer_config, 'display.default_params', array());
+foreach ($default_params as $field => $value) {
+    $default_params[$field] = \Input::get($field, $value);
+}
 
 ?>
 <style type="text/css">
@@ -40,15 +49,39 @@ $id_properties = $uniqid.'_properties';
                 <tr>
                     <th><?= __('Width')?></th>
                     <td>
-                        <input type="text" name="media_width" data-id="media_width" size="5" id="media_width" value="<?= \Input::get('media_width', '') ?>" />
+                        <input type="text" name="media_width" data-id="media_width" size="5" id="media_width" value="<?= \Arr::get($default_params, 'media_width') ?>" />
                     </td>
                 </tr>
                 <tr>
                     <th><?= __('Height') ?></th>
                     <td>
-                        <input type="text" name="media_height" data-id="media_height" size="5" id="media_height" value="<?= \Input::get('media_height', '') ?>" />
+                        <input type="text" name="media_height" data-id="media_height" size="5" id="media_height" value="<?= \Arr::get($default_params, 'media_height') ?>" />
                     </td>
                 </tr>
+                <?php if (\Arr::get($novius_onlinemediafiles_config, 'alignment.enabled')) { ?>
+                <tr>
+                    <th><?= __('Alignment') ?></th>
+                    <td>
+                        <select name="media_align" id="media_align">
+                            <option value=""></option>
+                            <option value="left"<?= (\Arr::get($default_params, 'media_align') == 'left') ? ' selected="selected"' : '' ?>><?= __('Left') ?></option>
+                            <option value="center"<?= (\Arr::get($default_params, 'media_align') == 'center') ? ' selected="selected"' : '' ?>><?= __('Center') ?></option>
+                            <option value="right"<?= (\Arr::get($default_params, 'media_align') == 'right') ? ' selected="selected"' : '' ?>><?= __('Right') ?></option>
+                            <option value="left-float"<?= (\Arr::get($default_params, 'media_align') == 'left-float') ? ' selected="selected"' : '' ?>><?= __('Left (floating)') ?></option>
+                            <option value="right-float"<?= (\Arr::get($default_params, 'media_align') == 'right-float') ? ' selected="selected"' : '' ?>><?= __('Right (floating)') ?></option>
+                        </select>
+                    </td>
+                </tr>
+                <?php } ?>
+                <?php if (\Arr::get($novius_onlinemediafiles_config, 'responsive.enabled')) { ?>
+                <tr>
+                    <th><?= __('Enable mobile support') ?></th>
+                    <td>
+                        <input type="radio" name="media_responsive" id="media_responsive-no" value="1" <?= \Arr::get($default_params, 'media_responsive') ? 'checked="true"' : '' ?> /> Oui
+                        <input type="radio" name="media_responsive" id="media_responsive-yes" value="0" <?= !\Arr::get($default_params, 'media_responsive') ? 'checked="true"' : '' ?> /> Non
+                    </td>
+                </tr>
+                <?php } ?>
                 <tr>
                     <th></th>
                     <td> <button type="submit" class="primary" data-icon="check" data-id="save"><?= $media_id ? __('Update this media') : __('Insert this media') ?></button> &nbsp; <?= __('or') ?> &nbsp; <a data-id="close" href="#"><?= __('Cancel') ?></a></td>

@@ -54,15 +54,99 @@ class Driver_Vimeo extends Driver {
             return false;
         }
 
-		// Build the API url
+        // Try different methods to get video attributes
+        $methods = array(
+            'fetch_from_public_api',
+            'fetch_from_private_api',
+            'fetch_from_player',
+        );
+        $attributes = null;
+        foreach ($methods as $method) {
+            $response = call_user_func(array($this, $method));
+            // Title and thumbnail are required
+            if (!empty($response) && !empty($response['title']) & !empty($response['thumbnail'])) {
+                $attributes = $response;
+                break;
+            }
+        }
+
+        // Nothing found
+        if (empty($attributes)) {
+            return false;
+        }
+
+        return $this->attributes($attributes);
+    }
+
+    /**
+     * Try to fetch video by private API (see vimeo's driver configuration file)
+     *
+     * @return array|bool
+     */
+    public function fetch_from_private_api() {
+        // Vimeo API
+        if (!class_exists('Novius\OnlineMediaFiles\Package\Vimeo_Api')) {
+            return false;
+        }
+
+        // Get private API credentials
+        $client_id = \Arr::get($this->config, 'private_api.client_id');
+        $client_secret = \Arr::get($this->config, 'private_api.client_secret');
+        if (empty($client_id) || empty($client_secret)) {
+            return false;
+        }
+
+        // Initialize Vimeo API
+        $api = new Package\Vimeo_Api($client_id, $client_secret);
+
+        // Set access token
+        $api->setToken(\Arr::get($this->config, 'private_api.access_token'));
+
+        // Request video by id
+        $response = $api->request('/videos/'.$this->identifier());
+        $body = \Arr::get($response, 'body');
+        if (empty($body)) {
+            return false;
+        }
+
+        // Build attributes
+        $attributes = array(
+            'title'         => strval(\Arr::get($body, 'name')),
+            'description'   => strval(\Arr::get($body, 'description')),
+            'thumbnail'     => false,
+            'metadatas'     => array_filter((array) static::objectToArray($body, 0))
+        );
+
+        // Thumbnail
+        $pictures = \Arr::get($body, 'pictures.sizes');
+        if (!empty($pictures)) {
+            $biggest = null;
+            foreach ($pictures as $thumb) {
+                if (empty($biggest) || \Arr::get($thumb, 'width') > \Arr::get($biggest, 'width')) {
+                    $biggest = $thumb;
+                }
+            }
+            \Arr::set($attributes, 'thumbnail', \Arr::get($biggest, 'link'));
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Try to fetch video from public API
+     *
+     * @return array|bool
+     */
+    public function fetch_from_public_api() {
+        // Build the API url
         $api_url = 'http://vimeo.com/api/v2/video/'.$this->identifier().'.json';
 
-		// Get the json response
+        // Get the the JSON response
         $response = json_decode(static::get_url_content($api_url));
         !is_array($response) or ($response = reset($response));
-		if (empty($response)) {
-			return false;
-		}
+        if (empty($response)) {
+            return false;
+        }
 
         // Title is required
         if (empty($response->title)) {
@@ -89,7 +173,40 @@ class Driver_Vimeo extends Driver {
         // Sanitize description
         $attributes['description'] = preg_replace('`<br\s*/?>`i', "\n", $attributes['description']);
 
-        return $this->attributes($attributes);
+        return $attributes;
+    }
+
+    /**
+     * Try to fetch video from player's page
+     *
+     * @return null
+     */
+    public function fetch_from_player() {
+        // Build attributes
+        $attributes = array(
+            'title'         => null,
+            'description'   => null,
+            'thumbnail'     => null,
+            'metadatas'     => array(),
+        );
+
+        // Get player content
+        $player_url = 'http://player.vimeo.com/video/'.$this->identifier();
+        $player_content = static::get_url_content($player_url);
+
+        // Extract title
+        if (preg_match('`"title"\s*:\s*"([^"]+)"`si', $player_content, $out)) {
+            $attributes['title'] = $out[1];
+        }
+
+        // Extract thumbnail
+        if (preg_match_all('`((?:https?:)?//[^/]+/video/[^\.]+\.jpg)`si', $player_content, $out)) {
+            $thumbs = array_unique(\Arr::pluck($out, '1'));
+            $attributes['thumbnail'] = reset($thumbs);
+            $attributes['metadatas']['thumbnails'] = $thumbs;
+        }
+
+        return $attributes;
     }
 
     /**

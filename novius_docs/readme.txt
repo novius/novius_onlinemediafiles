@@ -66,51 +66,87 @@ The app provides you a renderer (Renderer_Media) to associate one or many media 
     Specific options are :
         array(
             'multiple'  => true,
-            'provider_relation' => true, //if you use a provider to link medias to your model, this is needed
-            'key_prefix' => 'my_prefix' //When you use a provider with the multiple option, you can set a custom prefix for your medias
+			// If you use a provider then fill this option with the provider's relation name
+			// (the relation name that you put here will define whether medias are shared by all context or not)
+            'provider_relation' => 'relation_name',
+			// If you use a provider with the multiple option then you can set a custom prefix for your medias
+            'key_prefix' => 'my_prefix',
         )
 
 The new system of providers set by Novios OS 5.0 (Elche) permit you to easily add medias to any model. You have multiple way to use it.
 
 * First, you need to set the provider to your model. Here is the configuration that is needed. We provide you all model that you need to link any model to many medias.
 
-    Add an "has many" relation :
-        'linked_online_medias' => array(
-            'key_from'       => 'your_primary_key_field',
-            'model_to'       => '\Novius\OnlineMediaFiles\Model_Link',
-            'key_to'         => 'onli_foreign_id',
-            'condition'      => 'where' => array(
-                array('onli_from_table', '=', \DB::expr(\DB::quote(static::$_table_name))),
-            ),
-            'cascade_save'   => true,
-            'cascade_delete' => true,
-        ),
+    Put this into your model. This will add a provider for online medias and another provider for shared online media (like the NOS original media) :
 
-    Add the provider himself :
-        'online_medias' => array(
-            'relation' => 'linked_online_medias',
-            'key_property' => 'onli_key',
-            'value_property' => 'onli_onme_id',
-            'value_relation' => 'media',
-            'table_name_property' => 'onli_from_table',
-        ),
+        public static function _init()
+        {
+            $primary_key = reset(static::$_primary_key);
+            static::addRelation('has_many', 'linked_online_medias', array(
+                    'key_from'       => $primary_key,
+                    'model_to'       => '\Novius\OnlineMediaFiles\Model_Link',
+                    'key_to'         => 'onli_foreign_id',
+                    'cascade_save'   => true,
+                    'cascade_delete' => true,
+                    'conditions'     => array(
+                        'where' => array(
+                            array('onli_from_table', '=', \DB::expr(\DB::quote(static::$_table_name))),
+                        ),
+                    ),
+                )
+            );
+            static::addProvider('online_medias', array(
+                'relation' => 'linked_online_medias',
+                'key_property' => 'onli_key',
+                'value_property' => 'onli_onme_id',
+                'value_relation' => 'media',
+                'table_name_property' => 'onli_from_table',
+            ));
 
-    After, that, your provider is ready, you can use it into your crud in two ways :
+            $behaviour_twinable = self::behaviours('Nos\Orm_Behaviour_Twinnable');
+            if (!empty($behaviour_twinable)) {
+                static::addRelation('twinnable_has_many', 'linked_shared_online_medias_context', array(
+                    'key_from' => $behaviour_twinable['common_id_property'],
+                    'model_to' => '\Novius\OnlineMediaFiles\Model_Link',
+                    'key_to' => 'onli_foreign_context_common_id',
+                    'cascade_save' => true,
+                    'cascade_delete' => true,
+                    'conditions' => array(
+                        'where' => array(
+                            array('onli_from_table', '=', \DB::expr(\DB::quote(static::$_table_name))),
+                        ),
+                    ),
+                ));
+                static::addProvider('shared_online_medias_context', array(
+                    'relation' => 'linked_shared_online_medias_context',
+                    'key_property' => 'onli_key',
+                    'value_property' => 'onli_onme_id',
+                    'value_relation' => 'media',
+                    'table_name_property' => 'onli_from_table',
+                ));
+            }
 
-    * For multiple media, you need to add a field wich name is the "has many" relation name. The 'provider_relation' option is also needed. Note that you can use this configuration without the multiple option.
-        $config['fields']['linked_online_medias'] = array(
+        }
+
+    After, that, your provider is ready, you can use it into your CRUD in two ways :
+
+    * For handling multiple online medias you must add a field with a custom field name and set the 'provider_relation' option filled with the
+      relation name (note that you can use this configuration without the multiple option) :
+
+        $config['fields']['custom_online_medias'] = array( // Do not use the name of the relation or the provider otherwise it may not work
             'label' => __('Online medias'),
             'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',
             'renderer_options' => array(
                 'multiple' => true,
-                'provider_relation' => true,
+                'provider_relation' => 'linked_online_medias', //Or 'linked_shared_online_medias_context' if you want the medias to be shared by all context
             ),
             'form' => array(
                 'title' => __('Online medias'),
             )
         ),
 
-    * For a single relation type, just name it like a regular medias or a wysiwyg
+    * For handling a single relation type, just name it like a regular medias or a wysiwyg :
+
         $config['fields']['online_medias->my_media_key->onli_onme_id'] = array(
             'label' => __('Online medias'),
             'renderer' => 'Novius\OnlineMediaFiles\Renderer_Media',

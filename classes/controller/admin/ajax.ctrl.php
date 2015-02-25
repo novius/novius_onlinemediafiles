@@ -35,6 +35,7 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
                     $test_item->driver()->attributes(),
                     array(
                         'driver_name'   => $test_item->driver()->driverName(),
+                        'driver_icon'   => $test_item->driver()->driverIcon(),
                         'display'       => $test_item->driver()->display(),
                         'preview'       => $test_item->driver()->preview(),
                     )

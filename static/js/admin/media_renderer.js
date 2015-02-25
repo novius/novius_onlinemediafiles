@@ -72,7 +72,7 @@ define([
 
                 var data = $input.data('media-options') || {};
                 var contentUrls = {
-                        'single'   : 'admin/novius_onlinemediafiles/renderer/popup'
+                        'single'   : 'admin/novius_onlinemediafiles/renderer/popup?current_id=' + $input.val()
                     },
                     titles = {
                         'single'   : $.nosTexts.chooseMediaFile

@@ -6,6 +6,15 @@ ne pas avoir de surprises par la suite.
 Il est également fait mention des méthodes et usages qui devienennt obsolètes (parfois d'une mineure à une autre).
 
 =======================================================================================================================
+4.* => 5.* (Dubrovka => Elche)
+=======================================================================================================================
+
+Cette version introduit une migration (cf. 003_providers.sql) qui modifie et ajoute des 
+champs dans la table `novius_onlinemediafiles_link` (inutilisée jusque là) pour pouvoir
+utiliser le nouveau système de providers introduit par la version Elche de Novius OS.
+
+
+=======================================================================================================================
 4.0.4.2
 =======================================================================================================================
 
