@@ -11,6 +11,8 @@
 namespace Novius\OnlineMediaFiles;
 
 use \Nos\Nos;
+use \Fuel\Core\Inflector;
+use \Nos\Config_Data;
 
 abstract class Driver {
 
@@ -360,7 +362,20 @@ abstract class Driver {
      * @return bool|string
      */
     public function className() {
-        return $this->class_name;
+        // Get current class name
+        $class = $this->class_name;
+        !\Str::starts_with($class, '\\') and $class = '\\'.$class;
+
+        // Get current app namespace
+        $namespace = Config_Data::get('app_installed.novius_onlinemediafiles.namespace', null);
+        !\Str::starts_with($namespace, '\\') and $namespace = '\\'.$namespace;
+
+        // Remove namespace for drivers located in this app
+        if (\Str::starts_with($class, $namespace)) {
+            $class = Inflector::denamespace($class);
+        }
+
+        return $class;
     }
 
     /**
