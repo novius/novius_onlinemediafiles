@@ -47,7 +47,7 @@ foreach ($config['drivers'] as $driver_name) {
 	$data[] = array(
 		'id' 	=> $driver_name,
 		'title' => $title,
-		'icon' 	=> \Arr::get($driver_config, 'icon.16'),
+		'icon' 	=> \Novius\OnlineMediaFiles\Driver::driverIconPath(16,\Arr::get($driver_config, 'icon.16')),
 	);
 }
 
