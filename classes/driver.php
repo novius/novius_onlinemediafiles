@@ -348,13 +348,9 @@ abstract class Driver {
      * @return mixed
      */
     public function driverIcon($size = 16) {
-        $icon = \Arr::get($this->config, 'icon.'.$size);
-
-        if (mb_strpos($icon, '/') === false) {
-            $icon = 'static/apps/novius_onlinemediafiles/icons/'.$size.'/'.$icon;
-        }
-
-		return $icon;
+        $icon = \Arr::get($this->config, 'icon.' . $size);
+        $icon = 'static/apps/novius_onlinemediafiles/icons/' . $size . '/' . $icon;
+        return $icon;
     }
 
     /**
