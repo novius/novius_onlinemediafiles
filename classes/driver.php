@@ -350,11 +350,14 @@ abstract class Driver {
     public function driverIcon($size = 16) {
         $icon = \Arr::get($this->config, 'icon.'.$size);
 
+        return static::driverIconPath($size, $icon);
+    }
+
+    public static function driverIconPath($size, $icon) {
         if (mb_strpos($icon, '/') === false) {
             $icon = 'static/apps/novius_onlinemediafiles/icons/'.$size.'/'.$icon;
         }
-
-		return $icon;
+        return $icon;
     }
 
     /**
