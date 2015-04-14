@@ -62,6 +62,11 @@ abstract class Driver {
      * @return string
      */
     public static function buildDriverName($driver_class) {
+        $currentNamespace = __NAMESPACE__;
+        $driverNamespace = substr($driver_class, 0, strrpos($driver_class, '\\'));
+        if ($currentNamespace != $driverNamespace) {
+            return '\\' .$driver_class;
+        }
         return substr($driver_class, strrpos($driver_class, '\\') + 1);
     }
 
