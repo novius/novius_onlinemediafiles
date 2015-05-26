@@ -90,7 +90,7 @@ class Driver_Storify extends Driver {
         }
 
         // Call the storify API
-        $api_url = 'http://api.storify.com/v1/stories/'.$this->getUsername().'/'.$this->getSlug();
+        $api_url = 'https://api.storify.com/v1/stories/'.$this->getUsername().'/'.$this->getSlug();
 
         // Get the json response
         $response = json_decode(static::get_url_content($api_url));
