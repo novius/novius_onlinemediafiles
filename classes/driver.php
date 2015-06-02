@@ -128,7 +128,7 @@ abstract class Driver {
     /**
      * Load config and dependencies' config.
      */
-	protected function loadConfig() {
+    protected function loadConfig() {
         // Load the driver's common config
         list($application, $file) = \Config::configFile(get_parent_class($this));
         $config = \Config::load($application . '::' . $file, true);
@@ -137,7 +137,7 @@ abstract class Driver {
         }
 
         // Merge with the current config
-        $this->config = \Arr::merge($this->config, $config);
+        $this->config = \Arr::merge_assoc($this->config, $config);
 
         // Load the driver's custom config
         list($application, $file) = \Config::configFile($this->class_name);
@@ -153,7 +153,7 @@ abstract class Driver {
                 if (is_array($dependency)) {
                     $dependency = $app; // Compatibilité Novius OS 0.2.1
                 }
-                $config = \Arr::merge($config, \Config::load($dependency . '::' . $file, true));
+                $config = \Arr::merge_assoc($config, \Config::load($dependency . '::' . $file, true));
             }
         }
 
@@ -166,7 +166,7 @@ abstract class Driver {
         );
 
         // Merge with the current config
-        $this->config = \Arr::merge($this->config, $config);
+        $this->config = \Arr::merge_assoc($this->config, $config);
 
         // Load app config
         $this->app_config = \Config::load('config', true);
@@ -315,12 +315,12 @@ abstract class Driver {
      * @param $max_depth
      * @return object
      */
-	public static function objectToArray($obj, $max_depth = null) {
+    public static function objectToArray($obj, $max_depth = null) {
         $arr = array();
         if (is_object($obj)) {
             $obj = get_object_vars($obj);
         }
-		if (is_array($obj)) {
+        if (is_array($obj)) {
             if (!is_null($max_depth) && $max_depth < 0) {
                 return null;
             }
@@ -353,6 +353,13 @@ abstract class Driver {
         return static::driverIconPath($size, $icon);
     }
 
+    /**
+     * Return the driver's icon path
+     *
+     * @param $size
+     * @param $icon
+     * @return string
+     */
     public static function driverIconPath($size, $icon) {
         if (mb_strpos($icon, '/') === false) {
             $icon = 'static/apps/novius_onlinemediafiles/icons/'.$size.'/'.$icon;
@@ -399,12 +406,12 @@ abstract class Driver {
         return $this->url();
     }
 
-	/**
-	 * Return the host
-	 *
+    /**
+     * Return the host
+     *
      * @param bool $with_subdomain
-	 * @return mixed
-	 */
+     * @return mixed
+     */
     public function host($with_subdomain = true) {
         if ($this->url()) {
             $host = self::parseUrl($this->url(), PHP_URL_HOST);
@@ -415,16 +422,16 @@ abstract class Driver {
             return $host;
         }
         return false;
-	}
+    }
 
-	/**
-	 * Return the title
-	 *
-	 * @return mixed
-	 */
-	public function title() {
-		return $this->attribute('title');
-	}
+    /**
+     * Return the title
+     *
+     * @return mixed
+     */
+    public function title() {
+        return $this->attribute('title');
+    }
 
     /**
      * Return the thumbnail url
@@ -453,16 +460,16 @@ abstract class Driver {
         return $this->attribute('metadatas');
     }
 
-	/**
-	 * Display the embedded online media
-	 *
-	 * @param array $params
-	 * @return mixed|string
-	 */
-	public function display($params = array()) {
+    /**
+     * Display the embedded online media
+     *
+     * @param array $params
+     * @return mixed|string
+     */
+    public function display($params = array()) {
 
         // Build display params
-		$params = \Arr::merge(
+        $params = \Arr::merge(
             \Arr::get($this->config, 'display', array()),
             array(
                 'attributes'	=> array(
@@ -514,37 +521,37 @@ abstract class Driver {
         }
 
         // Apply the template
-		$display = str_replace('{display}', $display, \Arr::get($params, 'template'));
+        $display = str_replace('{display}', $display, \Arr::get($params, 'template'));
 
-		return $display;
-	}
+        return $display;
+    }
 
-	/**
-	 * Show a preview of the online media
-	 *
-	 * @param array $params
-	 * @return mixed|string
-	 */
-	public function preview($params = array()) {
-		$params = \Arr::merge(array(
-			'template'	=> '{preview}',
-		), $params);
+    /**
+     * Show a preview of the online media
+     *
+     * @param array $params
+     * @return mixed|string
+     */
+    public function preview($params = array()) {
+        $params = \Arr::merge(array(
+            'template'	=> '{preview}',
+        ), $params);
 
-		if (!$this->thumbnail()) {
-			return '';
-		}
+        if (!$this->thumbnail()) {
+            return '';
+        }
 
-		$preview = '<img src="'.$this->thumbnail().'" title="'.e($this->title()).'" alt="'.e($this->title()).'" />';
-		$preview = str_replace('{preview}', $preview, $params['template']);
-		return $preview;
-	}
+        $preview = '<img src="'.$this->thumbnail().'" title="'.e($this->title()).'" alt="'.e($this->title()).'" />';
+        $preview = str_replace('{preview}', $preview, $params['template']);
+        return $preview;
+    }
 
-	/**
-	 * Check if the url is compatible with the driver
-	 *
-	 * @return mixed
-	 */
-	abstract public function compatible();
+    /**
+     * Check if the url is compatible with the driver
+     *
+     * @return mixed
+     */
+    abstract public function compatible();
 
     /**
      * Fetch the attributes (title, description, thumbnail...)

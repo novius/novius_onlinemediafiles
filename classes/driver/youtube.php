@@ -23,17 +23,6 @@ class Driver_Youtube extends Driver_Oembed {
         // Check if the driver is compatible by extracting the identifier from the url
         return ($this->url() && $this->identifier(false));
     }
-    /**
-     * Return the driver's icon
-     *
-     * @param int $size
-     * @return mixed
-     */
-    public function driverIcon($size = 16) {
-        $icon = \Arr::get($this->config, 'icon.'.$size);
-
-        return static::driverIconPath($size, $icon);
-    }
 
     /**
      * Returns the HTML code to embed the online media
