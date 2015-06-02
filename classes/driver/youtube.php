@@ -10,7 +10,7 @@
 
 namespace Novius\OnlineMediaFiles;
 
-class Driver_Youtube extends Driver {
+class Driver_Youtube extends Driver_Oembed {
 
 	protected $identifier       = false;
 
@@ -41,48 +41,6 @@ class Driver_Youtube extends Driver {
 			)
 		), $params));
 	}
-
-    /**
-     * Fetch the online media attributes (title, description, metadatas...)
-     *
-     * @return bool|mixed
-     */
-    public function fetch() {
-        if (!$this->identifier()) {
-            return false;
-        }
-
-        // Call the youtube API
-        $api_url = 'http://gdata.youtube.com/feeds/api/videos/'.$this->identifier().'?v=2&alt=jsonc';
-
-		// Get the json response
-        $response = json_decode(static::get_url_content($api_url));
-		if (empty($response) || empty($response->data)) {
-			return false;
-		}
-
-        // Title is required
-        if (empty($response->data->title)) {
-            return false;
-        }
-
-        // Build attributes
-        $attributes = array(
-            'title'         => (string) $response->data->title,
-            'description'   => (string) (!empty($response->data->description) ? $response->data->description : ''),
-            'thumbnail'     => false,
-            'metadatas'     => (array) $response->data,
-        );
-
-        // Get the biggest thumbnail
-        if (!empty($response->data->thumbnail->hqDefault)) {
-            $attributes['thumbnail'] = (string) $response->data->thumbnail->hqDefault;
-        } elseif (!empty($response->data->thumbnail->sqDefault)) {
-            $attributes['thumbnail'] = (string) $response->data->thumbnail->sqDefault;
-        }
-
-        return $this->attributes($attributes);
-    }
 
     /**
      * Extract the unique identifier of the online media
