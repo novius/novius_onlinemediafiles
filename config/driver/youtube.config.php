@@ -13,4 +13,8 @@ return array(
 	'icon'		=> array(
 		'16' => 'youtube.jpg',
 	),
+    'api'       => array(
+        'host'      => 'www.youtube.com',
+        'path'      => '/oembed',
+    ),
 );
