@@ -63,7 +63,10 @@ return array(
 			$config = \Config::load('novius_onlinemediafiles::config', true);
             foreach ($config['drivers'] as $driver) {
                 $driver_class = \Novius\OnlineMediaFiles\Driver::buildDriverClass($driver);
-                $driver_name = \Novius\OnlineMediaFiles\Driver::buildDriverName($driver_class);
+                $driver_name  = $driver_class;
+                if (!in_array($driver_class, $value)) {
+                    $driver_name = \Novius\OnlineMediaFiles\Driver::buildDriverName($driver_class);
+                }
                 if (in_array($driver, $value)) {
                     $ext[] = $driver_name;
                 } else {
