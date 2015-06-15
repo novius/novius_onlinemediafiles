@@ -90,6 +90,20 @@ define(
                             return ;
                         }
 
+                        var id = json.id;
+                        if (id) {
+                            var vars = {};
+                            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                                vars[key] = value;
+                            });
+                            url = vars['tab'] + '/' + id;
+                            $wrapper_btn.nosTabs('update', {
+                                url: url,
+                                reload: true
+                            });
+                            return;
+                        }
+
                         // Update fields
                         $title.val(json.title);
                         $description.val(json.description);
