@@ -38,4 +38,5 @@ return array(
         // Enable or disable the responsive features
         'enabled'   => false,
     ),
+    'allow_duplicates' => false
 );

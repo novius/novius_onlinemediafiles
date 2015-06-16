@@ -19,6 +19,20 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
                 throw new \Exception(__('Please specify the URL of the online media'));
             }
 
+            $config = \Config::load("novius_onlinemediafiles::config", true);
+            if (!\Arr::get($config, 'allow_duplicates', false)) {
+                // Find existing media
+                $foundMedia = Model_Media::query()->where('onme_url', $url)->get_one();
+
+                if (!empty($foundMedia)) {
+                    \Response::json(200,
+                        array(
+                            'id' => $foundMedia->onme_id
+                        )
+                    );
+                }
+            }
+
             // Builds a test item
             $test_item = Model_Media::forge(array(
                 'onme_url'  => $url,
