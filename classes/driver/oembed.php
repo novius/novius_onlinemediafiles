@@ -49,9 +49,16 @@ class Driver_Oembed extends Driver {
 			'template'	=> '{display}',
 		), $params);
 
-		$display = \Arr::get((array) $this->metadatas(), 'html', '');
-		$display = str_replace('{display}', $display, $params['template']);
-		return $display;
+		// Gets the player's embedded code
+		$metadatas = (array) $this->metadatas();
+		$display = \Arr::get($metadatas, 'html', '');
+		if (!empty($display)) {
+			// Sets the template
+			$display = str_replace('{display}', $display, $params['template']);
+			return $display;
+		}
+
+		return parent::display($params);
     }
 
     /**
