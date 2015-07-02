@@ -14,20 +14,25 @@ class Controller_Admin_Ajax extends \Nos\Controller_Admin_Application
 {
     public function action_fetch() {
         try {
+            $onme_id = \Input::post('onme_id');
             $url = \Input::post('url', false);
             if (empty($url)) {
                 throw new \Exception(__('Please specify the URL of the online media'));
             }
 
+            // Prevents duplicate media
             $config = \Config::load("novius_onlinemediafiles::config", true);
             if (!\Arr::get($config, 'allow_duplicates', false)) {
-                // Find existing media
-                $foundMedia = Model_Media::query()->where('onme_url', $url)->get_one();
-
+                // Search another media with the same url
+                $foundMedia = Model_Media::query()->where('onme_url', $url);
+                if (!empty($onme_id)) {
+                    $foundMedia->where('onme_id', '!=', $onme_id);
+                }
+                $foundMedia = $foundMedia->get_one();
                 if (!empty($foundMedia)) {
                     \Response::json(200,
                         array(
-                            'id' => $foundMedia->onme_id
+                            'duplicate_of' => 'admin/novius_onlinemediafiles/media/insert_update/'.$foundMedia->onme_id
                         )
                     );
                 }

@@ -81,7 +81,8 @@ define(
                 $wrapper_btn.nosAjax({
                     url: 'admin/novius_onlinemediafiles/ajax/fetch',
                     data: {
-                        'url' : url
+                        'url'       : url,
+                        'onme_id'   : onme_id
                     },
                     dataType    : 'json',
                     type        : 'POST',
@@ -90,17 +91,14 @@ define(
                             return ;
                         }
 
-                        var id = json.id;
-                        if (id) {
-                            var vars = {};
-                            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-                                vars[key] = value;
-                            });
-                            url = vars['tab'] + '/' + id;
-                            $wrapper_btn.nosTabs('update', {
-                                url: url,
-                                reload: true
-                            });
+                        if (json.duplicate_of) {
+                            // @todo make a nice confirmationDialog
+                            if (confirm('An online media with the same URL already exists, would you like to be redirected to this one ?')) {
+                                $wrapper_btn.nosTabs('open', {
+                                    url: json.duplicate_of,
+                                    reload: true
+                                });
+                            }
                             return;
                         }
 
