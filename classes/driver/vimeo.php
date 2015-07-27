@@ -191,7 +191,7 @@ class Driver_Vimeo extends Driver {
         );
 
         // Get player content
-        $player_url = 'http://player.vimeo.com/video/'.$this->identifier();
+        $player_url = 'https://player.vimeo.com/video/'.$this->identifier();
         $player_content = static::get_url_content($player_url);
 
         // Extract title
