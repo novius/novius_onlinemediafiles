@@ -23,6 +23,15 @@ define([
                 initialize_input($(this));
             });
 
+            var sortable = $context.data('sortable');
+            if (sortable) {
+                $context.sortable({
+                    helper: 'clone',
+                    items: '.sortable'
+                });
+                $context.find('.sortable').disableSelection();
+            }
+
             // Adds another online media
             $context.find('.add_another').each(function() {
                 var $this = $(this);
