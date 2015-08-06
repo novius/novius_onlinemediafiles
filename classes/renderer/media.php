@@ -61,7 +61,7 @@ class Renderer_Media extends \Fieldset_Field
 
         $keyThrough = null;
         if (!empty($relation)) {
-            $keyThrough = $relation->key_through_to;
+            $keyThrough = $relation->key_through_order;
         }
 
         $is_sortable = isset($this->options['sortable']) ? $this->options['sortable'] : !empty($keyThrough);
