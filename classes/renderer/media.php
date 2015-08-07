@@ -59,6 +59,13 @@ class Renderer_Media extends \Fieldset_Field
 
         $is_multiple = isset($this->options['multiple']) ? $this->options['multiple'] : is_array($item->{$field_name});
 
+        $keyThrough = null;
+        if (!empty($relation)) {
+            $keyThrough = $relation->key_through_order;
+        }
+
+        $is_sortable = isset($this->options['sortable']) ? $this->options['sortable'] : !empty($keyThrough);
+
         /* This is the start to protect common online media in crud. It's not working with just that */
 		/* @todo make it work with multiple fields */
 		/*
@@ -150,6 +157,7 @@ class Renderer_Media extends \Fieldset_Field
             // Generate the field
             $fields[] = \View::forge('novius_onlinemediafiles::admin/renderer/media_field', array(
                 'field' => parent::build(),
+                'sortable' => $is_sortable
             ), false);
 
             // Stop at first value if not multiple
@@ -159,7 +167,7 @@ class Renderer_Media extends \Fieldset_Field
         }
         $this->template = $template;
         return $this->template(\View::forge('novius_onlinemediafiles::admin/renderer/media_fields', array(
-            'options'   => \Arr::merge($this->options, array('multiple' => $is_multiple)),
+            'options'   => \Arr::merge($this->options, array('multiple' => $is_multiple, 'sortable' => $is_sortable)),
             'fields'    => $fields,
             'id'        => $uniqid
         ), false));
