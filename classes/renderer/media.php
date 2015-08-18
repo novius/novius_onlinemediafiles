@@ -60,7 +60,7 @@ class Renderer_Media extends \Fieldset_Field
         $is_multiple = isset($this->options['multiple']) ? $this->options['multiple'] : is_array($item->{$field_name});
 
         $keyThrough = null;
-        if (!empty($relation)) {
+        if (!empty($relation) && property_exists($relation, 'key_through_order')) {
             $keyThrough = $relation->key_through_order;
         }
 
