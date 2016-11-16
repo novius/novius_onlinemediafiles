@@ -13,6 +13,27 @@
 return array(
     'model' => 'Novius\OnlineMediaFiles\Model_Folder',
     'order_by' => 'onfo_title',
+    'models' => array(
+        'Novius\OnlineMediaFiles\Model_Folder' => array(
+            'callback' => array(
+                'permissions' => function ($query) {
+                    $restricted_folders = \Novius\OnlineMediaFiles\Permission::getRestrictedFolders();
+
+                    if (empty($restricted_folders)) {
+                        return $query;
+                    }
+
+                    $query->where_open();
+                    $query->or_where(array('onfo_parent_id', NULL));
+                    foreach ($restricted_folders as $restricted_folder) {
+                        $query->or_where(array('onfo_path', 'LIKE', $restricted_folder->onfo_path.'%'));
+                    }
+                    $query->where_close();
+                    return $query;
+                },
+            ),
+        ),
+    ),
     'input' => array(
         'key' => 'onme_folder_id'
     ),
