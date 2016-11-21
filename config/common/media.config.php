@@ -51,5 +51,26 @@ return array(
         ),
     ),
     'actions' => array(
+        'add' => array(
+            'label' => __('Add a media file'),
+            'visible' => array(
+                'check_permission' => array('Novius\OnlineMediaFiles\Permission', 'checkMediaVisible'),
+            ),
+            'disabled' => array(
+                'check_draft' => array('Novius\OnlineMediaFiles\Permission', 'checkPermissionDraft'),
+            ),
+        ),
+        'edit' => array(
+            'disabled' => array(
+                'check_draft' => array('Novius\OnlineMediaFiles\Permission', 'checkPermissionDraft'),
+                'check_folder_restriction' => array('Novius\OnlineMediaFiles\Permission', 'isMediaInRestrictedFolder'),
+            ),
+        ),
+        'delete' => array(
+            'disabled' => array(
+                'check_draft' => array('Novius\OnlineMediaFiles\Permission', 'checkPermissionDraft'),
+                'check_folder_restriction' => array('Novius\OnlineMediaFiles\Permission', 'isMediaInRestrictedFolder'),
+            ),
+        ),
     ),
 );
