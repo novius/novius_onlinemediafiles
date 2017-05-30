@@ -52,7 +52,8 @@ class Driver_Oembed extends Driver {
 		// Gets the player's embedded code
 		$metadatas = (array) $this->metadatas();
 		$display = \Arr::get($metadatas, 'html', '');
-		if (!empty($display)) {
+		//dd($params);
+		if (!empty($display) && !empty($params['default_embed'])) {
 			// Sets the template
 			$display = str_replace('{display}', $display, $params['template']);
 			return $display;

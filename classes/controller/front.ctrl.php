@@ -40,7 +40,12 @@ class Controller_Front extends \Nos\Controller_Front_Application {
         if ($align = \Arr::get($args, 'media_align')) {
             \Arr::set($params, 'attributes.height', $height);
         }
-
+    
+        //use default embed code
+        if ($defaultEmbed = \Arr::get($args, 'media_use_default_embed_display')) {
+            \Arr::set($params, 'default_embed', $defaultEmbed);
+        }
+        
         // Alignment
         \Arr::set($params, 'align', \Arr::get($args, 'media_align'));
 

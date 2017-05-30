@@ -42,7 +42,10 @@ return array(
     'Right'                                         => 'Droite',
     'Left (floating)'                               => 'Gauche (flottant)',
     'Right (floating)'                              => 'Droite (flottant)',
-
+    'Use default html display'                      => 'Utiliser l\'affichage par défaut',
+    'Explaination checkbox default'                 => 'Si vous décochez cette case, les paramètres ci-dessous seront appliqués',
+    'Custom parameters only for Youtube and Soundcloud' => 'Paramètres personnalisés (seulement pour Youtube et Soundcloud)',
+    
     // CRUD
     'Synchronize'                                           => 'Synchroniser',
     'Please specify the URL of the online media'            => 'Veuillez préciser l\'url du média internet',
