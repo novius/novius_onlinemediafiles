@@ -33,9 +33,7 @@ class Driver_Youtube extends Driver_Oembed {
 	public function display($params = array()) {
         return parent::display(\Arr::merge(array(
 			'attributes'	=> array(
-				'src'				=> '//www.youtube.com/embed/'.$this->identifier().'?&wmode=opaque',
-				'width'				=> 560,
-				'height'			=> 315,
+				'src'				=> 'https://www.youtube.com/embed/'.$this->identifier().'?&wmode=opaque',
 				'frameborder'		=> '0',
 				'allowfullscreen'	=> true,
 			)

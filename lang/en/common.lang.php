@@ -10,5 +10,4 @@
 
 return array(
     'Add another online media'                      => '+',
-    'Explaination checkbox default'                 => 'If you uncheck this, your parameters below will be applied, else it will be the default html additionals informations from the application onlineMediaFile',
 );

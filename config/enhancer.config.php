@@ -15,7 +15,6 @@ return array(
             'media_width' => null,
             'media_height' => null,
             'media_align' => null,
-            'media_use_default_embed_display' => true,
             'media_responsive' => true,
         ),
     ),

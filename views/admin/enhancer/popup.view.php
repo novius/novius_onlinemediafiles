@@ -47,17 +47,6 @@ foreach ($default_params as $field => $value) {
             <input type="hidden" name="enhancer" value="novius_onlinemediafiles_display" />
             <table class="fieldset">
                 <tr>
-                    <th><?= __('Use default html display') ?></th>
-                    <td>
-                        <input type="checkbox" name="media_use_default_embed_display" data-id="media_use_default_embed_display" id="media_use_default_embed_display" value="1" <?= !empty(\Arr::get($default_params, 'media_use_default_embed_display')) ? 'checked="true"' : '' ?> />
-                        (<?= __('Explaination checkbox default') ?>)
-                    </td>
-                </tr>
-                <tr>
-                    <th></th>
-                    <td><?= __('Custom parameters only for Youtube and Soundcloud') ?></td>
-                </tr>
-                <tr>
                     <th><?= __('Width')?></th>
                     <td>
                         <input type="text" name="media_width" data-id="media_width" size="5" id="media_width" value="<?= \Arr::get($default_params, 'media_width') ?>" />
