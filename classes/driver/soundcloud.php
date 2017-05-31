@@ -17,7 +17,22 @@ class Driver_Soundcloud extends Driver_Oembed {
      *
      * @return bool|mixed
      */
-	public function compatible() {
+    public function compatible() {
         return ($this->host(false) == 'soundcloud.com' && parent::compatible());
-	}
+    }
+
+    /**
+     * Returns the HTML code to embed the online media
+     *
+     * @param array $params
+     * @return mixed|string
+     */
+
+    public function display($params = array()) {
+        return parent::display(\Arr::merge(array(
+            'attributes' => array(
+                'src' => 'https://w.soundcloud.com/player/?visual=true&url='.$this->url().'&show_artwork=true',
+            )
+        ), $params));
+    }
 }

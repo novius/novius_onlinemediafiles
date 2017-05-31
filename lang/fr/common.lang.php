@@ -49,5 +49,4 @@ return array(
     'Online media not found, please check the URL'          => 'Ce média internet est introuvable',
     'This online media is not recognized'                   => 'Ce média internet n\'est pas reconnu',
     'An error occured while synchronizing the online media' => 'La synchronisation du média a échoué',
-
 );

@@ -21,7 +21,7 @@ $id_properties = $uniqid.'_properties';
 // Set default values
 $default_params = \Arr::get($enhancer_config, 'display.default_params', array());
 foreach ($default_params as $field => $value) {
-    $default_params[$field] = \Input::get($field, $value);
+    $default_params[$field] = \Input::get($field);
 }
 
 ?>
