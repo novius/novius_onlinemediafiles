@@ -468,6 +468,8 @@ abstract class Driver {
      */
     public function display($params = array()) {
 
+        \Event::trigger_function('onlinemediafiles.before_display', array($this, &$params));
+
         // Build display params
         $params = \Arr::merge(
             \Arr::get($this->config, 'display', array()),
