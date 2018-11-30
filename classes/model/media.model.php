@@ -139,10 +139,24 @@ class Model_Media extends \Nos\Orm\Model
             }
 
             // Extrait les attributs du média internet (titre, description...)
+            $maxPass = 30; // le nombre de passe par défaut
+            $timeToWait = 1; // En secondes
+            $pass = 0; // passe courante
+
+            // Par défaut il se peu que youtube mette un peu de temps à traiter la vidéo et que du coup les attributs
+            // ne soient pas disponible immédiatement, du coup dans ce cas là on va aller les cherchers toutes les secondes
+            // 30 fois au maximum (30sec) si au bout des 30sec on a toujours rien, alors on considère que l'upload
+            // a foiré.
             $attributes = $driver->fetch();
-            if (empty($attributes)) {
-                throw new \Exception(__('Online media not found, please check the URL'));
+            while(empty($attributes)) {
+                $attributes = $driver->fetch();
+                sleep($timeToWait);
+
+                if(++$pass >= $maxPass) {
+                    throw new \Exception(__('Online media not found, please check the URL'));
+                }
             }
+
 
             // Set new driver
             $this->driver = $driver;
