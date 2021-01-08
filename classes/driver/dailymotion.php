@@ -111,7 +111,7 @@ class Driver_Dailymotion extends Driver {
      */
     public function cleanUrl() {
         if ($this->identifier()) {
-            return 'http://www.dailymotion.com/video/'.$this->identifier();
+            return 'https://www.dailymotion.com/video/'.$this->identifier();
         }
         return $this->url();
     }

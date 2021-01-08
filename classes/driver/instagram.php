@@ -65,7 +65,7 @@ class Driver_Instagram extends Driver {
         }
 
         // Call the youtube API
-        $api_url = 'http://api.instagram.com/oembed?url='.$this->url();
+        $api_url = 'https://api.instagram.com/oembed?url='.$this->url();
 
         // Get the json response
         $curl = curl_init();
@@ -148,7 +148,7 @@ class Driver_Instagram extends Driver {
      */
     public function cleanUrl() {
         if ($this->identifier()) {
-            return 'http://instagram.com/p/'.$this->identifier();
+            return 'https://instagram.com/p/'.$this->identifier();
         }
         return $this->url();
     }
@@ -178,7 +178,7 @@ class Driver_Instagram extends Driver {
         static $fetch_instagram = false;
         static $data = '';
         if (!$fetch_instagram) {
-            $url = "http://instagram.com/p/{$this->identifier()}";
+            $url = "https://instagram.com/p/{$this->identifier()}";
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

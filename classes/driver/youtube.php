@@ -87,7 +87,7 @@ class Driver_Youtube extends Driver_Oembed {
      */
     public function cleanUrl() {
         if ($this->identifier()) {
-            return 'http://www.youtube.com/watch?v='.$this->identifier();
+            return 'https://www.youtube.com/watch?v='.$this->identifier();
         }
         return $this->url();
     }
