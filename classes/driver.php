@@ -234,9 +234,9 @@ abstract class Driver {
     public static function parseUrl($url, $component = -1) {
         // Add http if necessary
         if (substr($url, 0, 2) == '//') {
-            $url = 'http:'.$url;
+            $url = 'https:'.$url;
         } elseif (!preg_match('`^https?://`', $url)) {
-            $url = 'http://'.$url;
+            $url = 'https://'.$url;
         }
         return parse_url($url, $component);
     }

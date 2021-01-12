@@ -139,7 +139,7 @@ class Driver_Vimeo extends Driver {
      */
     public function fetch_from_public_api() {
         // Build the API url
-        $api_url = 'http://vimeo.com/api/v2/video/'.$this->identifier().'.json';
+        $api_url = 'https://vimeo.com/api/v2/video/'.$this->identifier().'.json';
 
         // Get the the JSON response
         $response = json_decode(static::get_url_content($api_url));
@@ -256,7 +256,7 @@ class Driver_Vimeo extends Driver {
      */
     public function cleanUrl() {
         if ($this->identifier()) {
-            return 'http://www.vimeo.com/video/'.$this->identifier();
+            return 'https://www.vimeo.com/video/'.$this->identifier();
         }
         return $this->url();
     }
